@@ -111,7 +111,7 @@ jobs:
       - name: Flatpak
         if: runner.os == 'Linux'
         run: |
-          sudo apt-get install -y --no-install-recommends flatpak flatpak-builder
+          sudo apt-get install -y --no-install-recommends flatpak flatpak-builder elfutils
           scripts/linux/flatpak.sh
           flatpak install --user -y --noninteractive target/linux-x86_64/kagi-*-x86_64.flatpak
           flatpak info --user dev.kagi.Kagi
