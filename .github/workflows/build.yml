@@ -117,7 +117,7 @@ jobs:
           rm -rf target/linux-x86_64/flatpak-*
           scripts/linux/flatpak.sh
           flatpak install --user -y --noninteractive target/linux-x86_64/kagi-*-x86_64.flatpak
-          flatpak info --user io.github.apitamr.Kagi
+          flatpak info --user io.github.apitamr.kagi_releases.Kagi
       # What Flathub's review runs on the manifest, the listing and the
       # build; a finding is shown here but doesn't hold the release back.
       - name: Flathub lint
@@ -126,9 +126,12 @@ jobs:
         run: |
           flatpak install --user -y --noninteractive flathub org.flatpak.Builder
           lint="flatpak run --command=flatpak-builder-lint org.flatpak.Builder"
-          $lint manifest target/linux-x86_64/flathub/io.github.apitamr.Kagi.yml
-          $lint appstream target/linux-x86_64/flathub/io.github.apitamr.Kagi.metainfo.xml
-          $lint repo target/linux-x86_64/flatpak-repo
+          # All three, each reporting, then failing if any found something.
+          found=0
+          $lint manifest target/linux-x86_64/flathub/io.github.apitamr.kagi_releases.Kagi.yml || found=1
+          $lint appstream target/linux-x86_64/flathub/io.github.apitamr.kagi_releases.Kagi.metainfo.xml || found=1
+          $lint repo target/linux-x86_64/flatpak-repo || found=1
+          exit $found
       - name: MSI
         if: runner.os == 'Windows'
         run: |

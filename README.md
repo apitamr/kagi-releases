@@ -61,15 +61,16 @@ Kagi checks for updates and installs them itself.
 
 ```sh
 flatpak install --user kagi-*-x86_64.flatpak
-flatpak run io.github.apitamr.Kagi
+flatpak run io.github.apitamr.kagi_releases.Kagi
 ```
 
 It fetches the runtime from Flathub if you don't have it. Inside Flatpak's sandbox:
 
 - SSH tunnels work, as `ssh` comes with it.
+- It opens and saves files (SQLite and DuckDB databases, `.sql` files, exports) through the file picker; a path typed by hand outside `~/.ssh` isn't reachable.
 - Dumping and restoring don't, as `pg_dump`, `mysqldump` and the others aren't in the sandbox. Use another package for those.
 - Connect to local servers over TCP (`localhost`), not their Unix sockets.
-- Its saved connections are kept apart from another install's, in `~/.var/app/io.github.apitamr.Kagi`.
+- Its saved connections are kept apart from another install's, in `~/.var/app/io.github.apitamr.kagi_releases.Kagi`.
 
 ### Debian and Ubuntu
 
