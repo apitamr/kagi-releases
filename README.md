@@ -3,6 +3,11 @@
 Builds of Kagi, a compact database client for PostgreSQL, MySQL/MariaDB, SQLite, DuckDB, SQL Server, ClickHouse, MongoDB and Redis.
 
 <p align="center">
+  <a href="https://github.com/apitamr/kagi-releases/releases/latest"><img src="https://img.shields.io/github/v/release/apitamr/kagi-releases?label=latest&color=e8590c" alt="Latest release"></a>
+  <a href="https://github.com/apitamr/kagi-releases/releases"><img src="https://img.shields.io/github/downloads/apitamr/kagi-releases/total?color=1c1713" alt="Downloads"></a>
+</p>
+
+<p align="center">
   <img src="media/kagi-promo.gif" width="720" alt="Kagi in 26 seconds: the ad as a SQL query, every engine in one app, inline editing, autocomplete, the command palette, the schema diagram and 112 themes">
 </p>
 
