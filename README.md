@@ -11,8 +11,6 @@ Builds of Kagi, a compact database client for PostgreSQL, MySQL/MariaDB, SQLite,
   <img src="media/kagi-promo.gif" width="720" alt="Kagi in 26 seconds: the ad as a SQL query, every engine in one app, inline editing, autocomplete, the command palette, the schema diagram and 112 themes">
 </p>
 
-<p align="center"><a href="media/kagi-promo.mp4">Watch it in full quality (MP4)</a></p>
-
 | Running a query | A schema's diagram | Saved connections |
 | --- | --- | --- |
 | ![Running a query, in the dark theme](screenshots/query.png) | ![A schema's diagram](screenshots/diagram.png) | ![Saved connections](screenshots/connections.png) |
