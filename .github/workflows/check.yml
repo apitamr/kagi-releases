@@ -1,0 +1,202 @@
+# Checks Kagi's private source on this public repository's free minutes:
+# `make check`, the keyring tests and a build without DuckDB, and the
+# server drivers' integration tests against containers.
+#
+# Started only by the owner: `make ci` in the source (a commit already
+# pushed), a manual run here, or nightly on main, which adds Windows and the
+# drivers. Never by a pull request, so forks never run it with the secrets.
+#
+# SOURCE_TOKEN: as build.yml's. The logs are public: test output and
+# compiler errors in them can quote the source.
+name: Check
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Commit, branch or tag of apitamr/kagi to check
+        default: main
+      windows:
+        description: Also on Windows
+        type: boolean
+        default: false
+      macos:
+        description: Also on macOS
+        type: boolean
+        default: false
+      drivers:
+        description: Also the driver integration tests
+        type: boolean
+        default: false
+
+concurrency:
+  group: check-${{ inputs.ref || 'main' }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  REF: ${{ inputs.ref || 'main' }}
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
+  # No debug info: a smaller cache and a faster link, enough for tests.
+  CARGO_PROFILE_DEV_DEBUG: 0
+  CARGO_PROFILE_TEST_DEBUG: 0
+
+jobs:
+  check:
+    name: make check (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: >-
+          ${{ fromJSON(
+            github.event_name == 'schedule' && '["ubuntu-latest","windows-latest"]'
+            || inputs.windows && inputs.macos && '["ubuntu-latest","windows-latest","macos-latest"]'
+            || inputs.windows && '["ubuntu-latest","windows-latest"]'
+            || inputs.macos && '["ubuntu-latest","macos-latest"]'
+            || '["ubuntu-latest"]') }}
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+        working-directory: db-inu
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: apitamr/kagi
+          ref: ${{ env.REF }}
+          token: ${{ secrets.SOURCE_TOKEN }}
+          path: db-inu
+      # The ui crate is a sibling checkout, consumed by path (../ui-rs).
+      - uses: actions/checkout@v4
+        with:
+          repository: apitamr/slop-ui
+          token: ${{ secrets.SOURCE_TOKEN }}
+          path: ui-rs
+      # `stable` in rust-toolchain.toml is whatever the runner has; match the
+      # latest, as clippy's lints change between releases.
+      - name: Latest stable Rust
+        run: rustup update stable --no-self-update
+      - name: Linux packages
+        if: runner.os == 'Linux'
+        run: sudo scripts/linux/deps.sh
+      - name: Make
+        if: runner.os == 'Windows'
+        run: choco install make --no-progress
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: db-inu -> target
+      - run: make check
+      # Passwords through the platform's real keyring: the Secret Service
+      # (GNOME Keyring, unlocked with an empty password) on Linux, the
+      # Credential Manager on Windows.
+      - name: Keyring
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get install -y --no-install-recommends gnome-keyring dbus-x11
+          dbus-run-session -- sh -c 'echo | gnome-keyring-daemon --unlock --components=secrets >/dev/null && cargo test -p kagi keychain -- --ignored'
+      - name: Keyring
+        if: runner.os == 'Windows'
+        run: cargo test -p kagi keychain -- --ignored
+      # The app built without DuckDB (`make dev NO_DUCKDB=1`) still lints.
+      - name: Without DuckDB
+        if: runner.os == 'Linux'
+        run: cargo clippy -p kagi --no-default-features -- -D warnings
+
+  drivers:
+    name: driver integration tests
+    if: github.event_name == 'schedule' || inputs.drivers
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: db-inu
+    env:
+      KAGI_TEST_POSTGRES: host=localhost port=54329 user=postgres dbname=postgres
+      KAGI_TEST_MYSQL: mysql://root:pw@127.0.0.1:33061/shop
+      KAGI_TEST_MARIADB: mariadb://root:pw@127.0.0.1:33062/shop
+      KAGI_TEST_MYSQL_CERTS: /tmp/mysql-certs
+      KAGI_TEST_MONGO: mongodb://localhost:27019
+      KAGI_TEST_MONGO_AUTH: mongodb://root:secret@localhost:27020
+      KAGI_TEST_MONGO_RS: mongodb://localhost:27021
+      KAGI_TEST_REDIS: redis://127.0.0.1:63790
+      KAGI_TEST_CLICKHOUSE: clickhouse://app:secret@127.0.0.1:18123
+      KAGI_TEST_SQLSERVER: sqlserver://sa:Kagi_db_2026@127.0.0.1:14330?trustServerCertificate=true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: apitamr/kagi
+          ref: ${{ env.REF }}
+          token: ${{ secrets.SOURCE_TOKEN }}
+          path: db-inu
+      - uses: actions/checkout@v4
+        with:
+          repository: apitamr/slop-ui
+          token: ${{ secrets.SOURCE_TOKEN }}
+          path: ui-rs
+      # The servers as the drivers' module docs start them.
+      - name: Start servers
+        run: |
+          # Socket folders the servers' own users can write.
+          mkdir -m 777 /tmp/pgsock /tmp/mysqld /tmp/mariadbd
+          docker run -d --name pg -p 54329:5432 -v /tmp/pgsock:/var/run/postgresql -e POSTGRES_HOST_AUTH_METHOD=trust postgres:17
+          docker run -d --name kagi-mysql -p 33061:3306 -v /tmp/mysqld:/var/run/mysqld -e MYSQL_ROOT_PASSWORD=pw -e MYSQL_DATABASE=shop mysql:8
+          docker run -d --name kagi-mariadb -p 33062:3306 -v /tmp/mariadbd:/run/mysqld -e MARIADB_ROOT_PASSWORD=pw -e MARIADB_DATABASE=shop mariadb:11
+          docker run -d --name m1 -p 27019:27017 mongo:7.0
+          docker run -d --name m2 -p 27020:27017 -e MONGO_INITDB_ROOT_USERNAME=root -e MONGO_INITDB_ROOT_PASSWORD=secret mongo:7.0
+          docker run -d --name m3 -p 27021:27017 mongo:7.0 --replSet rs0
+          docker run -d --name redis -p 63790:6379 redis:7
+          docker run -d --name valkey -p 63791:6379 valkey/valkey:8
+          docker run -d --name mssql -p 14330:1433 -e ACCEPT_EULA=Y -e MSSQL_SA_PASSWORD=Kagi_db_2026 mcr.microsoft.com/mssql/server:2022-latest
+          docker run -d --name clickhouse -p 18123:8123 -e CLICKHOUSE_USER=app -e CLICKHOUSE_PASSWORD=secret clickhouse/clickhouse-server:25.8
+      - name: Linux packages
+        run: sudo scripts/linux/deps.sh
+      # pg_dump refuses a server newer than itself: the server's version.
+      - name: PostgreSQL 17 client tools
+        run: |
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+          sudo apt-get install -y --no-install-recommends postgresql-client-17
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: db-inu -> target
+          key: drivers
+      - name: Build the tests
+        run: cargo test -p kagi-drivers --no-run
+      - name: Wait for the servers
+        run: |
+          for _ in $(seq 60); do
+            docker exec pg pg_isready -q \
+              && docker exec kagi-mysql mysql -uroot -ppw -e 'select 1' shop >/dev/null 2>&1 \
+              && docker exec kagi-mariadb mariadb -uroot -ppw -e 'select 1' shop >/dev/null 2>&1 \
+              && break
+            sleep 2
+          done
+          docker cp kagi-mysql:/var/lib/mysql/. /tmp/mysql-all
+          mkdir -p /tmp/mysql-certs && cp /tmp/mysql-all/*.pem /tmp/mysql-certs/
+      # The TLS test needs a PostgreSQL server with its own certificate; the
+      # socket tests run in their own step.
+      - run: >-
+          cargo test -p kagi-drivers postgres -- --ignored
+          --skip tls_modes_encrypt_and_check_the_certificate --skip a_socket_connects
+      - run: cargo test -p kagi-drivers mysql -- --ignored --skip a_socket_in_the_url
+      - run: cargo test -p kagi-drivers mongo -- --ignored --test-threads=1
+      - run: cargo test -p kagi-drivers redis -- --ignored
+      - run: cargo test -p kagi-drivers clickhouse -- --ignored
+      - run: cargo test -p kagi-drivers sqlserver -- --ignored --test-threads=1
+      - name: Valkey, through the Redis driver
+        env:
+          KAGI_TEST_REDIS: redis://127.0.0.1:63791
+        run: cargo test -p kagi-drivers redis -- --ignored
+      # The same servers through their Unix sockets, mounted from the containers.
+      - name: Unix sockets
+        env:
+          KAGI_TEST_POSTGRES: host=/tmp/pgsock user=postgres dbname=postgres
+          KAGI_TEST_MYSQL: mysql://root:pw@localhost/shop?socket=/tmp/mysqld/mysqld.sock
+          KAGI_TEST_MARIADB: mariadb://root:pw@localhost/shop?socket=/tmp/mariadbd/mysqld.sock
+        run: >-
+          cargo test -p kagi-drivers -- --ignored --exact
+          postgres::tests::a_socket_connects_by_its_folder_or_its_file
+          mysql::tests::a_socket_in_the_url_connects_through_it
