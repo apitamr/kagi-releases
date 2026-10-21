@@ -117,7 +117,18 @@ jobs:
           rm -rf target/linux-x86_64/flatpak-*
           scripts/linux/flatpak.sh
           flatpak install --user -y --noninteractive target/linux-x86_64/kagi-*-x86_64.flatpak
-          flatpak info --user dev.kagi.Kagi
+          flatpak info --user io.github.apitamr.Kagi
+      # What Flathub's review runs on the manifest, the listing and the
+      # build; a finding is shown here but doesn't hold the release back.
+      - name: Flathub lint
+        if: runner.os == 'Linux'
+        continue-on-error: true
+        run: |
+          flatpak install --user -y --noninteractive flathub org.flatpak.Builder
+          lint="flatpak run --command=flatpak-builder-lint org.flatpak.Builder"
+          $lint manifest target/linux-x86_64/flathub/io.github.apitamr.Kagi.yml
+          $lint appstream target/linux-x86_64/flathub/io.github.apitamr.Kagi.metainfo.xml
+          $lint repo target/linux-x86_64/flatpak-repo
       - name: MSI
         if: runner.os == 'Windows'
         run: |
@@ -149,6 +160,7 @@ jobs:
             db-inu/target/linux-x86_64/*.deb
             db-inu/target/linux-x86_64/*.AppImage
             db-inu/target/linux-x86_64/*.flatpak
+            db-inu/target/linux-x86_64/flathub/*
             db-inu/target/windows/*.msi
             db-inu/target/release/bundle/*.dmg
           if-no-files-found: error
