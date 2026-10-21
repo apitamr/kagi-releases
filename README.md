@@ -11,7 +11,7 @@ Download the file for your system from the [latest release](https://github.com/a
 | Linux, any distribution | `kagi-<version>-x86_64.AppImage` | Installs them itself |
 | Linux, any distribution (Flatpak) | `kagi-<version>-x86_64.flatpak` | Download the new version when Kagi says there is one |
 | Debian, Ubuntu | `kagi_<version>_amd64.deb` | Download the new version when Kagi says there is one |
-| Arch, Omarchy | `kagi-bin` on the AUR | Your AUR helper (`yay -Syu`) |
+| Arch, Omarchy | `kagi-<version>-x86_64.tar.gz` and `PKGBUILD` | Download the new version when Kagi says there is one |
 
 Kagi was called shiba-db before: it moves an earlier install's saved connections and keychain entries over on its first start.
 
@@ -81,15 +81,13 @@ sudo apt install ./kagi_*_amd64.deb
 
 ### Arch and Omarchy
 
-Kagi is on the AUR as `kagi-bin`:
+Download the release's tarball and `PKGBUILD` into one folder, then in that folder:
 
 ```sh
-yay -S kagi-bin
+makepkg -si
 ```
 
-On Omarchy you can also pick it from the menu: **Install › AUR**. Updates come with `yay -Syu`.
-
-Without an AUR helper, download the release's tarball and `PKGBUILD` into one folder, then run `makepkg -si` there.
+Kagi then shows in your app launcher. It is coming to the AUR as `kagi-bin`, for `yay -S kagi-bin` and Omarchy's **Install › AUR**.
 
 For SSH tunnels Kagi uses `ssh` (`openssh`); for dumps and restores, `pg_dump` and `psql` (`postgresql`) or `mysqldump` and `mysql` (`mariadb-clients`).
 
