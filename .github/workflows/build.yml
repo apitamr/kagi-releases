@@ -114,7 +114,7 @@ jobs:
           sudo apt-get install -y --no-install-recommends flatpak flatpak-builder
           scripts/linux/flatpak.sh
           flatpak install --user -y --noninteractive target/linux-x86_64/kagi-*-x86_64.flatpak
-          flatpak info --user dev.kagi
+          flatpak info --user dev.kagi.Kagi
       - name: MSI
         if: runner.os == 'Windows'
         run: |
