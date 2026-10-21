@@ -163,7 +163,6 @@ jobs:
             db-inu/target/linux-x86_64/*.deb
             db-inu/target/linux-x86_64/*.AppImage
             db-inu/target/linux-x86_64/*.flatpak
-            db-inu/target/linux-x86_64/flathub/*
             db-inu/target/windows/*.msi
             db-inu/target/release/bundle/*.dmg
           if-no-files-found: error

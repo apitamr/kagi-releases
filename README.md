@@ -2,7 +2,7 @@
 
 Builds of Kagi, a compact database client for PostgreSQL, MySQL/MariaDB, SQLite, DuckDB, SQL Server, ClickHouse, MongoDB and Redis.
 
-![Kagi in 30 seconds: every database in one app, editing rows, autocomplete, the command palette, the schema diagram and 100+ themes](media/kagi-promo.gif)
+![Kagi in 26 seconds: the ad as a SQL query, every engine in one app, inline editing, autocomplete, the command palette, the schema diagram and 112 themes](media/kagi-promo.gif)
 
 [Watch it in full quality (MP4)](media/kagi-promo.mp4)
 
