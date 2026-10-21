@@ -12,7 +12,7 @@ Download the file for your system from the [latest release](https://github.com/a
 | Debian, Ubuntu | `kagi_<version>_amd64.deb` | Download the new version when Kagi says there is one |
 | Arch, Omarchy | `kagi-<version>-x86_64.tar.gz` and `PKGBUILD` | Download the new version when Kagi says there is one |
 
-Releases up to 0.1.2 were called shiba-db, so their files are named `shiba-db-…`. Kagi moves their saved connections and keychain entries over on its first start.
+Kagi was called shiba-db before: it moves an earlier install's saved connections and keychain entries over on its first start.
 
 ## macOS
 
