@@ -13,8 +13,6 @@ Download the file for your system from the [latest release](https://github.com/a
 | Debian, Ubuntu | `kagi_<version>_amd64.deb` | Download the new version when Kagi says there is one |
 | Arch, Omarchy | `kagi-<version>-x86_64.tar.gz` and `PKGBUILD` | Download the new version when Kagi says there is one |
 
-Kagi was called shiba-db before: it moves an earlier install's saved connections and keychain entries over on its first start.
-
 ## macOS
 
 Kagi isn't signed with an Apple Developer ID yet, so macOS can't check it and blocks it the first time. You allow it once:

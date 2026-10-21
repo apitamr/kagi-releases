@@ -177,12 +177,6 @@ jobs:
         run: |
           previous=$(git -C source describe --tags --abbrev=0 "$TAG^" 2>/dev/null || true)
           git -C source log --format='- %s' ${previous:+"$previous.."}"$TAG" > notes.md
-          # Installs from before the app became Kagi ask apitamr/shiba-db-releases
-          # (GitHub redirects it here, the repository having been renamed) and
-          # look for shiba-db file names: the same AppImage and MSI under those
-          # names update them.
-          find dist -type f \( -name 'kagi-*-x86_64.AppImage' -o -name 'kagi-*-x64.msi' \) |
-            while read -r file; do cp "$file" "$(dirname "$file")/shiba-db-${file##*/kagi-}"; done
           # The artifacts keep their folders (the .dmg in release/bundle/):
           # every file under dist, wherever it lies.
           find dist -type f -print0 | xargs -0 gh release create "$TAG" \
