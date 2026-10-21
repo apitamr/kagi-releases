@@ -112,6 +112,9 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get install -y --no-install-recommends flatpak flatpak-builder elfutils
+          # The Rust cache brings target/ back with the last run's Flatpak
+          # folders cut down; flatpak-builder can't use what is left.
+          rm -rf target/linux-x86_64/flatpak-*
           scripts/linux/flatpak.sh
           flatpak install --user -y --noninteractive target/linux-x86_64/kagi-*-x86_64.flatpak
           flatpak info --user dev.kagi.Kagi
