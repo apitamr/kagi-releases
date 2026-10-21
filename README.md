@@ -9,8 +9,9 @@ Download the file for your system from the [latest release](https://github.com/a
 | macOS (Apple Silicon) | `kagi-<version>.dmg` | Download the new version when Kagi says there is one |
 | Windows (x64) | `kagi-<version>-x64.msi` | Installs them itself |
 | Linux, any distribution | `kagi-<version>-x86_64.AppImage` | Installs them itself |
+| Linux, any distribution (Flatpak) | `kagi-<version>-x86_64.flatpak` | Download the new version when Kagi says there is one |
 | Debian, Ubuntu | `kagi_<version>_amd64.deb` | Download the new version when Kagi says there is one |
-| Arch, Omarchy | `kagi-<version>-x86_64.tar.gz` and `PKGBUILD` | Download the new version when Kagi says there is one |
+| Arch, Omarchy | `kagi-bin` on the AUR | Your AUR helper (`yay -Syu`) |
 
 Kagi was called shiba-db before: it moves an earlier install's saved connections and keychain entries over on its first start.
 
@@ -58,6 +59,20 @@ AppImages need FUSE 2. If it doesn't start, install it: `sudo pacman -S fuse2` o
 
 Kagi checks for updates and installs them itself.
 
+### Flatpak (any distribution)
+
+```sh
+flatpak install --user kagi-*-x86_64.flatpak
+flatpak run dev.kagi
+```
+
+It fetches the runtime from Flathub if you don't have it. Inside Flatpak's sandbox:
+
+- SSH tunnels work, as `ssh` comes with it.
+- Dumping and restoring don't, as `pg_dump`, `mysqldump` and the others aren't in the sandbox. Use another package for those.
+- Connect to local servers over TCP (`localhost`), not their Unix sockets.
+- Its saved connections are kept apart from another install's, in `~/.var/app/dev.kagi`.
+
 ### Debian and Ubuntu
 
 ```sh
@@ -66,11 +81,17 @@ sudo apt install ./kagi_*_amd64.deb
 
 ### Arch and Omarchy
 
-Download both the tarball and `PKGBUILD` into one folder, then in that folder:
+Kagi is on the AUR as `kagi-bin`:
 
 ```sh
-makepkg -si
+yay -S kagi-bin
 ```
+
+On Omarchy you can also pick it from the menu: **Install › AUR**. Updates come with `yay -Syu`.
+
+Without an AUR helper, download the release's tarball and `PKGBUILD` into one folder, then run `makepkg -si` there.
+
+For SSH tunnels Kagi uses `ssh` (`openssh`); for dumps and restores, `pg_dump` and `psql` (`postgresql`) or `mysqldump` and `mysql` (`mariadb-clients`).
 
 Kagi then shows in your app launcher. On Omarchy it follows your theme, light or dark, unless you turn that off in its Settings.
 
