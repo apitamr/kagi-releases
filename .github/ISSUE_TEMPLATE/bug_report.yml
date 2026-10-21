@@ -1,0 +1,82 @@
+name: Bug report
+description: Something in Kagi doesn't work as it should.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for taking the time. Please leave passwords, hostnames and data you don't want public out of everything below.
+  - type: input
+    id: version
+    attributes:
+      label: Kagi version
+      description: Settings → Updates, or the release you downloaded.
+      placeholder: "0.1.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: package
+    attributes:
+      label: How you installed it
+      options:
+        - macOS (.dmg)
+        - Windows (.msi)
+        - Linux AppImage
+        - Linux Flatpak
+        - Debian / Ubuntu (.deb)
+        - Arch (PKGBUILD / AUR)
+        - Built from source
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: "macOS 26.1, Windows 11 24H2, Ubuntu 24.04, …"
+    validations:
+      required: true
+  - type: dropdown
+    id: engine
+    attributes:
+      label: Database
+      description: The one you were connected to, if any.
+      options:
+        - Not about a database
+        - PostgreSQL
+        - MySQL
+        - MariaDB
+        - SQLite
+        - DuckDB
+        - SQL Server
+        - ClickHouse
+        - MongoDB
+        - Redis / Valkey
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you saw, and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Connect to …
+        2. Open …
+        3. …
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error message or logs
+      description: The message Kagi showed, or what it printed when started from a terminal.
+      render: text
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: Drag images here if they help.

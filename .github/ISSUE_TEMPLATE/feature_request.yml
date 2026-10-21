@@ -1,0 +1,40 @@
+name: Feature request
+description: An idea that would make Kagi better.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What you're trying to do
+      description: The task or the problem, not the solution yet.
+      placeholder: "When I … I have to …"
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: Your idea
+      description: How Kagi could help with it.
+    validations:
+      required: true
+  - type: dropdown
+    id: engines
+    attributes:
+      label: Databases it's for
+      multiple: true
+      options:
+        - All of them
+        - PostgreSQL
+        - MySQL
+        - MariaDB
+        - SQLite
+        - DuckDB
+        - SQL Server
+        - ClickHouse
+        - MongoDB
+        - Redis / Valkey
+  - type: textarea
+    id: elsewhere
+    attributes:
+      label: Seen it elsewhere?
+      description: Another tool that does this well, if any.
