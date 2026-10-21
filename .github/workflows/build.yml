@@ -194,6 +194,8 @@ jobs:
       # (SHA256:RFzBCUItH9LZS0cKB5UE6ceAYhBD5C8GeOBip8Z11+4, as the AUR
       # publishes it).
       - name: AUR
+        # The release is out by now: an AUR hiccup only warns.
+        continue-on-error: true
         env:
           AUR_SSH_KEY: ${{ secrets.AUR_SSH_KEY }}
         run: |
