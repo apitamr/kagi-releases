@@ -9,6 +9,8 @@
 #
 # SOURCE_TOKEN: a fine-grained token with Contents: read on apitamr/kagi
 # and apitamr/slop-ui (the ui crate, checked out next to it by path).
+# AUR_SSH_KEY: the private SSH key of the AUR account that keeps kagi-bin;
+# without it a release is not pushed to the AUR.
 #
 # The logs are public: nothing here prints the source, and the packages
 # uploaded between jobs are the ones published anyway.
@@ -39,8 +41,8 @@ env:
   CARGO_INCREMENTAL: 0
 
 jobs:
-  # Linux's tarball, .deb and AppImage (and the Arch package from the
-  # tarball), Windows' MSI and the macOS .dmg. The Linux and Windows ones
+  # Linux's tarball, .deb, AppImage and Flatpak (and the Arch package from
+  # the tarball), Windows' MSI and the macOS .dmg. The Linux and Windows ones
   # are installed and started, and must still be running 10 seconds later.
   package:
     name: package (${{ matrix.os }})
@@ -108,6 +110,13 @@ jobs:
             su builder -c "cd ~/pkg && makepkg --nodeps --noconfirm" >/dev/null
             pacman -U --noconfirm /home/builder/pkg/kagi-bin-*.pkg.tar.zst
             test -x /usr/bin/kagi && test -f /usr/share/applications/dev.kagi.desktop'
+      - name: Flatpak
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get install -y --no-install-recommends flatpak flatpak-builder
+          scripts/linux/flatpak.sh
+          flatpak install --user -y --noninteractive target/linux-x86_64/kagi-*-x86_64.flatpak
+          flatpak info --user dev.kagi
       - name: MSI
         if: runner.os == 'Windows'
         run: |
@@ -138,6 +147,7 @@ jobs:
             db-inu/target/linux-x86_64/PKGBUILD
             db-inu/target/linux-x86_64/*.deb
             db-inu/target/linux-x86_64/*.AppImage
+            db-inu/target/linux-x86_64/*.flatpak
             db-inu/target/windows/*.msi
             db-inu/target/release/bundle/*.dmg
           if-no-files-found: error
@@ -179,3 +189,32 @@ jobs:
           # every file under dist, wherever it lies.
           find dist -type f -print0 | xargs -0 gh release create "$TAG" \
             --repo "$GITHUB_REPOSITORY" --title "Kagi ${TAG#v}" --notes-file notes.md
+      # The release's PKGBUILD (its checksum filled in) as kagi-bin on the
+      # AUR, with the .SRCINFO the AUR reads. The host key is pinned
+      # (SHA256:RFzBCUItH9LZS0cKB5UE6ceAYhBD5C8GeOBip8Z11+4, as the AUR
+      # publishes it).
+      - name: AUR
+        env:
+          AUR_SSH_KEY: ${{ secrets.AUR_SSH_KEY }}
+        run: |
+          if [ -z "$AUR_SSH_KEY" ]; then
+            echo "::warning::No AUR_SSH_KEY secret: kagi-bin not updated on the AUR"
+            exit 0
+          fi
+          pkgbuild=$(find dist -name PKGBUILD | head -n 1)
+          mkdir -p ~/.ssh
+          printf '%s\n' "$AUR_SSH_KEY" > ~/.ssh/aur && chmod 600 ~/.ssh/aur
+          echo 'aur.archlinux.org ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEuBKrPzbawxA/k2g6NcyV5jmqwJ2s+zpgZGZ7tpLIcN' >> ~/.ssh/known_hosts
+          export GIT_SSH_COMMAND="ssh -i $HOME/.ssh/aur -o IdentitiesOnly=yes"
+          git clone ssh://aur@aur.archlinux.org/kagi-bin.git aur
+          cp "$pkgbuild" aur/PKGBUILD
+          docker run --rm -v "$PWD/aur:/pkg" archlinux:latest sh -c '
+            useradd -m builder && chown -R builder /pkg
+            su builder -c "cd /pkg && makepkg --printsrcinfo > .SRCINFO"'
+          sudo chown -R "$(id -u):$(id -g)" aur
+          cd aur
+          git config user.name apitamr
+          git config user.email apitamr@users.noreply.github.com
+          git add PKGBUILD .SRCINFO
+          git commit -m "Update to ${TAG#v}"
+          git push origin HEAD:master
