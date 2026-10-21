@@ -2,10 +2,10 @@
 # This repository is public, so its Actions minutes are free, the macOS
 # (10x) and Windows (2x) builds above all.
 #
-# Started only by the owner: a version tag pushed to apitamr/kagi sends a
-# `release` dispatch here, or a manual run (publish off to try the packages
-# without a release). Never by a pull request, so forks never run it with
-# the secrets.
+# Started only by the owner: `make release` in the source (it tags the
+# version and asks for a published run), or a manual run here (publish off
+# to try the packages without a release). Never by a pull request, so forks
+# never run it with the secrets.
 #
 # SOURCE_TOKEN: a fine-grained token with Contents: read on apitamr/kagi
 # and apitamr/slop-ui (the ui crate, checked out next to it by path).
@@ -17,8 +17,6 @@
 name: Build
 
 on:
-  repository_dispatch:
-    types: [release]
   workflow_dispatch:
     inputs:
       tag:
@@ -30,13 +28,13 @@ on:
         default: false
 
 concurrency:
-  group: build-${{ github.event.client_payload.tag || inputs.tag }}
+  group: build-${{ inputs.tag }}
 
 permissions:
   contents: read
 
 env:
-  TAG: ${{ github.event.client_payload.tag || inputs.tag }}
+  TAG: ${{ inputs.tag }}
   CARGO_TERM_COLOR: always
   CARGO_INCREMENTAL: 0
 
@@ -157,7 +155,7 @@ jobs:
   release:
     name: release
     needs: package
-    if: github.event_name == 'repository_dispatch' || inputs.publish
+    if: inputs.publish
     runs-on: ubuntu-latest
     permissions:
       contents: write
