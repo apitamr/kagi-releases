@@ -2,13 +2,17 @@
 
 Builds of Kagi, a compact database client for PostgreSQL, MySQL/MariaDB, SQLite, DuckDB, SQL Server, ClickHouse, MongoDB and Redis.
 
-![Browsing a table](screenshots/table.png)
+![Kagi in 30 seconds: browsing a table, a query with autocomplete, the schema diagram, light and dark](media/kagi-promo.gif)
+
+[Watch it in full quality (MP4)](media/kagi-promo.mp4)
 
 | Running a query | A schema's diagram | Saved connections |
 | --- | --- | --- |
 | ![Running a query, in the dark theme](screenshots/query.png) | ![A schema's diagram](screenshots/diagram.png) | ![Saved connections](screenshots/connections.png) |
 
-The screenshots show sample data.
+![Browsing a table](screenshots/table.png)
+
+The video and screenshots show sample data.
 
 Download the file for your system from the [latest release](https://github.com/apitamr/kagi-releases/releases/latest), then follow its section below.
 
