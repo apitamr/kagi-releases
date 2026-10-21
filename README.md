@@ -87,11 +87,11 @@ Download the release's tarball and `PKGBUILD` into one folder, then in that fold
 makepkg -si
 ```
 
-Kagi then shows in your app launcher. It is coming to the AUR as `kagi-bin`, for `yay -S kagi-bin` and Omarchy's **Install › AUR**.
-
 For SSH tunnels Kagi uses `ssh` (`openssh`); for dumps and restores, `pg_dump` and `psql` (`postgresql`) or `mysqldump` and `mysql` (`mariadb-clients`).
 
 Kagi then shows in your app launcher. On Omarchy it follows your theme, light or dark, unless you turn that off in its Settings.
+
+It is coming to the AUR as `kagi-bin`, for `yay -S kagi-bin` and Omarchy's **Install › AUR**.
 
 To remove it: `sudo pacman -R kagi-bin`.
 
