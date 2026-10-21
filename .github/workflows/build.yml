@@ -1,0 +1,181 @@
+# Builds Kagi's packages from its private source and publishes them here.
+# This repository is public, so its Actions minutes are free, the macOS
+# (10x) and Windows (2x) builds above all.
+#
+# Started only by the owner: a version tag pushed to apitamr/kagi sends a
+# `release` dispatch here, or a manual run (publish off to try the packages
+# without a release). Never by a pull request, so forks never run it with
+# the secrets.
+#
+# SOURCE_TOKEN: a fine-grained token with Contents: read on apitamr/kagi
+# and apitamr/slop-ui (the ui crate, checked out next to it by path).
+#
+# The logs are public: nothing here prints the source, and the packages
+# uploaded between jobs are the ones published anyway.
+name: Build
+
+on:
+  repository_dispatch:
+    types: [release]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Version tag of apitamr/kagi to build (e.g. v0.1.0)
+        required: true
+      publish:
+        description: Publish a release from it
+        type: boolean
+        default: false
+
+concurrency:
+  group: build-${{ github.event.client_payload.tag || inputs.tag }}
+
+permissions:
+  contents: read
+
+env:
+  TAG: ${{ github.event.client_payload.tag || inputs.tag }}
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
+
+jobs:
+  # Linux's tarball, .deb and AppImage (and the Arch package from the
+  # tarball), Windows' MSI and the macOS .dmg. The Linux and Windows ones
+  # are installed and started, and must still be running 10 seconds later.
+  package:
+    name: package (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+        working-directory: db-inu
+    steps:
+      - name: A version tag
+        working-directory: .
+        run: |
+          case "$TAG" in
+            v[0-9]*) ;;
+            *) echo "not a version tag: '$TAG'" >&2; exit 1 ;;
+          esac
+      - uses: actions/checkout@v4
+        with:
+          repository: apitamr/kagi
+          ref: ${{ env.TAG }}
+          token: ${{ secrets.SOURCE_TOKEN }}
+          path: db-inu
+      - uses: actions/checkout@v4
+        with:
+          repository: apitamr/slop-ui
+          token: ${{ secrets.SOURCE_TOKEN }}
+          path: ui-rs
+      - name: Latest stable Rust
+        run: rustup update stable --no-self-update
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: db-inu -> target
+          key: package
+      - name: The tag names the version
+        run: |
+          version=$(sed -n '/^\[workspace.package\]/,/^\[/s/^version = "\(.*\)"/\1/p' Cargo.toml)
+          [ "${TAG#v}" = "$version" ] || { echo "tag $TAG, Cargo.toml $version" >&2; exit 1; }
+      - name: Linux packages
+        if: runner.os == 'Linux'
+        run: |
+          sudo scripts/linux/deps.sh
+          scripts/linux/package.sh
+      # A software Vulkan (lavapipe) under a virtual X server.
+      - name: Install and start (.deb, AppImage)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get install -y --no-install-recommends xvfb mesa-vulkan-drivers
+          sudo apt-get install -y ./target/linux-x86_64/kagi_*_amd64.deb
+          for app in kagi target/linux-x86_64/kagi-*-x86_64.AppImage; do
+            status=0
+            APPIMAGE_EXTRACT_AND_RUN=1 timeout 10 xvfb-run -a "$app" || status=$?
+            [ "$status" = 124 ] || { echo "$app exited with $status" >&2; exit 1; }
+          done
+      - name: Arch package
+        if: runner.os == 'Linux'
+        run: |
+          mkdir arch && cp target/linux-x86_64/PKGBUILD target/linux-x86_64/kagi-*-x86_64.tar.gz arch/
+          docker run --rm -v "$PWD/arch:/pkg" archlinux:latest sh -c '
+            pacman -Syu --noconfirm --needed base-devel >/dev/null
+            useradd -m builder && cp -r /pkg /home/builder/pkg && chown -R builder /home/builder/pkg
+            su builder -c "cd ~/pkg && makepkg --nodeps --noconfirm" >/dev/null
+            pacman -U --noconfirm /home/builder/pkg/kagi-bin-*.pkg.tar.zst
+            test -x /usr/bin/kagi && test -f /usr/share/applications/dev.kagi.desktop'
+      - name: MSI
+        if: runner.os == 'Windows'
+        run: |
+          choco install make --no-progress
+          dotnet tool install --global wix --version 5.0.2
+          PATH="$PATH:$HOME/.dotnet/tools" make msi
+      - name: Install and start (MSI)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $msi = Get-ChildItem target/windows/*.msi | Select-Object -First 1
+          $install = Start-Process msiexec -ArgumentList "/i", $msi.FullName, "/qn" -Wait -PassThru
+          if ($install.ExitCode -ne 0) { throw "msiexec exited with $($install.ExitCode)" }
+          $app = Start-Process "$env:ProgramFiles\kagi\kagi.exe" -PassThru
+          Start-Sleep 10
+          if ($app.HasExited) { throw "kagi exited with $($app.ExitCode)" }
+          Stop-Process $app
+      # Signed ad hoc until there is a Developer ID (`make notarize`).
+      - name: macOS app
+        if: runner.os == 'macOS'
+        run: make bundle dmg
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kagi-${{ runner.os }}
+          retention-days: 3
+          path: |
+            db-inu/target/linux-x86_64/*.tar.gz
+            db-inu/target/linux-x86_64/PKGBUILD
+            db-inu/target/linux-x86_64/*.deb
+            db-inu/target/linux-x86_64/*.AppImage
+            db-inu/target/windows/*.msi
+            db-inu/target/release/bundle/*.dmg
+          if-no-files-found: error
+
+  # Publishes the packages as this repository's release of the tag, its
+  # notes the source's commits since the version tag before it.
+  release:
+    name: release
+    needs: package
+    if: github.event_name == 'repository_dispatch' || inputs.publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - uses: actions/checkout@v4
+        with:
+          repository: apitamr/kagi
+          ref: ${{ env.TAG }}
+          token: ${{ secrets.SOURCE_TOKEN }}
+          path: source
+          fetch-depth: 0
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          previous=$(git -C source describe --tags --abbrev=0 "$TAG^" 2>/dev/null || true)
+          git -C source log --format='- %s' ${previous:+"$previous.."}"$TAG" > notes.md
+          # Installs from before the app became Kagi ask apitamr/shiba-db-releases
+          # (GitHub redirects it here, the repository having been renamed) and
+          # look for shiba-db file names: the same AppImage and MSI under those
+          # names update them.
+          find dist -type f \( -name 'kagi-*-x86_64.AppImage' -o -name 'kagi-*-x64.msi' \) |
+            while read -r file; do cp "$file" "$(dirname "$file")/shiba-db-${file##*/kagi-}"; done
+          # The artifacts keep their folders (the .dmg in release/bundle/):
+          # every file under dist, wherever it lies.
+          find dist -type f -print0 | xargs -0 gh release create "$TAG" \
+            --repo "$GITHUB_REPOSITORY" --title "Kagi ${TAG#v}" --notes-file notes.md
