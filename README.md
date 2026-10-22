@@ -1,6 +1,13 @@
-# Kagi releases
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="media/kagi-icon-dark.png">
+    <img src="media/kagi-icon.png" width="128" height="128" alt="Kagi the corgi, Kagi's app icon">
+  </picture>
+</p>
 
-Builds of Kagi, a compact database client for PostgreSQL, MySQL/MariaDB, SQLite, DuckDB, SQL Server, ClickHouse, MongoDB and Redis.
+<h1 align="center">Kagi releases</h1>
+
+<p align="center">Builds of Kagi, a compact database client for PostgreSQL, MySQL/MariaDB, SQLite, DuckDB, SQL Server, ClickHouse, MongoDB and Redis.</p>
 
 <p align="center">
   <a href="https://github.com/apitamr/kagi-releases/releases/latest"><img src="https://img.shields.io/github/v/release/apitamr/kagi-releases?label=latest&color=e8590c" alt="Latest release"></a>
