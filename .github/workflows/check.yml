@@ -1,6 +1,7 @@
 # Checks Kagi's private source on this public repository's free minutes:
 # `make check`, the keyring tests and a build without DuckDB, and the
-# server drivers' integration tests against containers.
+# server drivers' integration tests against containers (CockroachDB's through
+# the PostgreSQL driver's tests, Vitess's through MySQL's).
 #
 # Started only by the owner: `make ci` in the source (a commit already
 # pushed), a manual run here, or nightly on main, which adds Windows and the
@@ -125,6 +126,8 @@ jobs:
       KAGI_TEST_REDIS: redis://127.0.0.1:63790
       KAGI_TEST_CLICKHOUSE: clickhouse://app:secret@127.0.0.1:18123
       KAGI_TEST_SQLSERVER: sqlserver://sa:Kagi_db_2026@127.0.0.1:14330?trustServerCertificate=true
+      KAGI_TEST_COCKROACH: host=127.0.0.1 port=26257 user=root dbname=kagi_test
+      KAGI_TEST_VITESS: mysql://root@127.0.0.1:33577
     steps:
       - uses: actions/checkout@v4
         with:
@@ -152,6 +155,9 @@ jobs:
           docker run -d --name valkey -p 63791:6379 valkey/valkey:8
           docker run -d --name mssql -p 14330:1433 -e ACCEPT_EULA=Y -e MSSQL_SA_PASSWORD=Kagi_db_2026 mcr.microsoft.com/mssql/server:2022-latest
           docker run -d --name clickhouse -p 18123:8123 -e CLICKHOUSE_USER=app -e CLICKHOUSE_PASSWORD=secret clickhouse/clickhouse-server:25.8
+          docker run -d --name kagi-crdb -p 26257:26257 cockroachdb/cockroach:v25.2.4 start-single-node --insecure
+          docker run -d --name kagi-vitess -p 33577:33577 vitess/vttestserver:mysql80 /vt/bin/vttestserver \
+            --port=33574 --keyspaces=shop --num_shards=1 --mysql_bind_host=0.0.0.0
       - name: Linux packages
         run: sudo scripts/linux/deps.sh
       # pg_dump refuses a server newer than itself: the server's version.
@@ -176,6 +182,19 @@ jobs:
           done
           docker cp kagi-mysql:/var/lib/mysql/. /tmp/mysql-all
           mkdir -p /tmp/mysql-certs && cp /tmp/mysql-all/*.pem /tmp/mysql-certs/
+      # CockroachDB's tests run on a database of their own; Vitess takes
+      # its time to start its tablets.
+      - name: Wait for CockroachDB and Vitess
+        run: |
+          for _ in $(seq 60); do
+            docker exec kagi-crdb cockroach sql --insecure -e 'CREATE DATABASE IF NOT EXISTS kagi_test' \
+              >/dev/null 2>&1 && break
+            sleep 2
+          done
+          for _ in $(seq 90); do
+            docker exec kagi-vitess mysql -h127.0.0.1 -P33577 -e 'select 1' >/dev/null 2>&1 && break
+            sleep 2
+          done
       # The TLS test needs a PostgreSQL server with its own certificate; the
       # socket tests run in their own step.
       - run: >-
