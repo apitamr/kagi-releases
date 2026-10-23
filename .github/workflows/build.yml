@@ -203,6 +203,27 @@ jobs:
           # every file under dist, wherever it lies.
           find dist -type f -print0 | xargs -0 gh release create "$TAG" \
             --repo "$GITHUB_REPOSITORY" --title "Kagi ${TAG#v}" --notes-file notes.md
+      - uses: actions/checkout@v4
+        with:
+          path: site
+      # The README's download buttons link straight to this release's files,
+      # whose names carry the version, so latest/download/<name> can't.
+      - name: README links
+        # The release is out by now: a failed push only warns.
+        continue-on-error: true
+        working-directory: site
+        run: |
+          version=${TAG#v}
+          sed -E -i \
+            -e "s#(releases/download/)v[0-9]+(\.[0-9]+)*/#\1$TAG/#g" \
+            -e "s#(releases/download/$TAG/kagi[-_])[0-9]+(\.[0-9]+)*([-_.])#\1$version\3#g" \
+            README.md
+          git diff --quiet && exit 0
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git commit -am "docs: download links for $version"
+          git pull --rebase
+          git push
       # The release's PKGBUILD (its checksum filled in) as kagi-bin on the
       # AUR, with the .SRCINFO the AUR reads. The host key is pinned
       # (SHA256:RFzBCUItH9LZS0cKB5UE6ceAYhBD5C8GeOBip8Z11+4, as the AUR

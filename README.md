@@ -26,16 +26,16 @@
 
 The video and screenshots show sample data.
 
-Download the file for your system from the [latest release](https://github.com/apitamr/kagi-releases/releases/latest), then follow its section below.
+Click your system's button to download its file from the [latest release](https://github.com/apitamr/kagi-releases/releases/latest), then follow its section below.
 
-| System | File | Updates |
+| System | Download | Updates |
 | --- | --- | --- |
-| macOS (Apple Silicon) | `kagi-<version>.dmg` | Download the new version when Kagi says there is one |
-| Windows (x64) | `kagi-<version>-x64.msi` | Installs them itself |
-| Linux, any distribution | `kagi-<version>-x86_64.AppImage` | Installs them itself |
-| Linux, any distribution (Flatpak) | `kagi-<version>-x86_64.flatpak` | Download the new version when Kagi says there is one |
-| Debian, Ubuntu | `kagi_<version>_amd64.deb` | Download the new version when Kagi says there is one |
-| Arch, Omarchy | `kagi-<version>-x86_64.tar.gz` and `PKGBUILD` | Download the new version when Kagi says there is one |
+| macOS (Apple Silicon) | [![Download the .dmg](https://img.shields.io/badge/download-.dmg-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.3.0/kagi-0.3.0.dmg) | Download the new version when Kagi says there is one |
+| Windows (x64) | [![Download the .msi](https://img.shields.io/badge/download-.msi-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.3.0/kagi-0.3.0-x64.msi) | Installs them itself |
+| Linux, any distribution | [![Download the AppImage](https://img.shields.io/badge/download-AppImage-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.3.0/kagi-0.3.0-x86_64.AppImage) | Installs them itself |
+| Linux, any distribution (Flatpak) | [![Download the .flatpak](https://img.shields.io/badge/download-.flatpak-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.3.0/kagi-0.3.0-x86_64.flatpak) | Download the new version when Kagi says there is one |
+| Debian, Ubuntu | [![Download the .deb](https://img.shields.io/badge/download-.deb-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.3.0/kagi_0.3.0_amd64.deb) | Download the new version when Kagi says there is one |
+| Arch, Omarchy | [![Download the .tar.gz](https://img.shields.io/badge/download-.tar.gz-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.3.0/kagi-0.3.0-x86_64.tar.gz) [![Download the PKGBUILD](https://img.shields.io/badge/download-PKGBUILD-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.3.0/PKGBUILD) | Download the new version when Kagi says there is one |
 
 ## macOS
 
