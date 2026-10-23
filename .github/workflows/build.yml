@@ -168,7 +168,8 @@ jobs:
           if-no-files-found: error
 
   # Publishes the packages as this repository's release of the tag, its
-  # notes the source's commits since the version tag before it.
+  # notes the version's section of the source's CHANGELOG.md (else the
+  # commits since the version tag before it).
   release:
     name: release
     needs: package
@@ -192,12 +193,19 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          # The commits since the version before; the first release says so.
-          previous=$(git -C source describe --tags --abbrev=0 "$TAG^" 2>/dev/null || true)
-          if [ -n "$previous" ]; then
-            git -C source log --format='- %s' "$previous..$TAG" > notes.md
-          else
-            echo "The first release of Kagi." > notes.md
+          # The version's own section of the changelog, from its "## <version>"
+          # to the next "## ", blank lines around it dropped.
+          awk -v heading="## ${TAG#v}" '$0 == heading {found=1; next} found && /^## / {exit} found' \
+            source/CHANGELOG.md | sed -e '/./,$!d' | sed -e :a -e '/^\n*$/{$d;N;ba' -e '}' > notes.md
+          # Without one: the commits since the version before; the first
+          # release says so.
+          if ! grep -q . notes.md; then
+            previous=$(git -C source describe --tags --abbrev=0 "$TAG^" 2>/dev/null || true)
+            if [ -n "$previous" ]; then
+              git -C source log --format='- %s' "$previous..$TAG" > notes.md
+            else
+              echo "The first release of Kagi." > notes.md
+            fi
           fi
           # The artifacts keep their folders (the .dmg in release/bundle/):
           # every file under dist, wherever it lies.
