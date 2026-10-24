@@ -142,9 +142,6 @@ jobs:
       # this Ubuntu 24.04 as its base is, then installed.
       - name: Snap
         if: runner.os == 'Linux'
-        # New: a failure warns rather than holding the release back, until
-        # the snap has built through a release.
-        continue-on-error: true
         run: |
           sudo snap install snapcraft --classic
           # As root: it installs its build snaps on this machine.
