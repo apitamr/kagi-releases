@@ -115,7 +115,7 @@ jobs:
           docker run --rm -v "$PWD/arch:/pkg" archlinux:latest sh -c '
             pacman -Syu --noconfirm --needed base-devel >/dev/null
             useradd -m builder && cp -r /pkg /home/builder/pkg && chown -R builder /home/builder/pkg
-            su builder -c "cd ~/pkg && makepkg --nodeps --noconfirm" >/dev/null
+            su builder -c "cd ~/pkg && PACKAGER=\"apitamr <apitamr@users.noreply.github.com>\" makepkg --nodeps --noconfirm" >/dev/null
             pacman -U --noconfirm /home/builder/pkg/kagi-bin-*.pkg.tar.zst
             test -x /usr/bin/kagi && test -f /usr/share/applications/dev.kagi.desktop
             cp /home/builder/pkg/kagi-bin-*.pkg.tar.zst /pkg/'
