@@ -1,0 +1,46 @@
+Kagi License
+
+Copyright (c) 2026 apitamr. All rights reserved.
+
+Kagi is free to download and use. This license covers the Kagi application
+and its packages as published at https://github.com/apitamr/kagi-releases,
+on the Snap Store and in Kagi's package repositories (the "Software").
+
+1. Use. You may install and use the Software at no charge, on any number
+   of computers, for personal, educational and commercial purposes,
+   including at work and on your employer's machines.
+
+2. Sharing. You may pass on unmodified copies of the Software's packages,
+   free of charge, as long as this license comes with them. You may not
+   sell the Software, charge for it, or bundle it into a product you sell.
+
+3. Restrictions. You may not modify, adapt or translate the Software;
+   decompile, disassemble or otherwise reverse-engineer it, except where
+   the law allows this despite this restriction; or remove or change any
+   copyright notice or this license.
+
+4. Your data. The Software connects only to the databases and services you
+   configure. Your connections, queries and data stay yours; saved
+   passwords are kept in your system's keychain or keyring.
+
+5. Third-party components. The Software includes open-source components
+   (among them GPUI, licensed under the Apache License 2.0, the JetBrains
+   Mono font, under the SIL Open Font License 1.1, and Rust libraries under
+   the MIT and Apache 2.0 licenses). Those components remain under their
+   own licenses, which this license does not change.
+
+6. No warranty. The Software is provided "as is", without warranty of any
+   kind, express or implied, including the warranties of merchantability,
+   fitness for a particular purpose and non-infringement. Back up your
+   data: you use the Software at your own risk.
+
+7. Limitation of liability. In no event shall the copyright holder be
+   liable for any claim, damages or other liability, whether in contract,
+   tort or otherwise, arising from, out of or in connection with the
+   Software or its use, including the loss or corruption of data.
+
+8. Ending. This license ends automatically if you break its terms; you
+   must then stop using the Software and delete your copies.
+
+9. Changes. Later versions of the Software may come with a different
+   license; the license that comes with a version applies to that version.

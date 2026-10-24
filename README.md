@@ -123,6 +123,10 @@ It is coming to the AUR as `kagi-bin`, for `yay -S kagi-bin` and Omarchy's **Ins
 
 To remove it: `sudo pacman -R kagi-bin`.
 
+## License
+
+Kagi is free to download and use, at home and at work. It isn't open source: see [LICENSE.txt](LICENSE.txt) for what you may and may not do with it.
+
 ## About this repository
 
 It holds the builds only; the source is private. Kagi checks this repository's latest release for updates.
