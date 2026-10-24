@@ -147,7 +147,9 @@ jobs:
         continue-on-error: true
         run: |
           sudo snap install snapcraft --classic
-          scripts/linux/snap.sh
+          # As root: it installs its build snaps on this machine.
+          sudo scripts/linux/snap.sh
+          sudo chown -R "$(id -u):$(id -g)" target/linux-$(uname -m)
           sudo snap install --dangerous target/linux-$(uname -m)/kagi_*_$(dpkg --print-architecture).snap
           snap list kagi
       # What Flathub's review runs on the manifest, the listing and the
