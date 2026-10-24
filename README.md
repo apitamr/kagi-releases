@@ -148,6 +148,12 @@ Your connections, queries, history and settings stay on your computer, and passw
 
 Kagi is free, and made by one person. If it saves you time, you can support its work on [GitHub Sponsors](https://github.com/sponsors/apitamr): it pays for the Apple and Windows signing certificates that would end the "allow it once" steps above, and for time on new engines and features.
 
+Thank you to everyone who does:
+
+<!-- sponsors -->
+No sponsors yet. [Be the first](https://github.com/sponsors/apitamr).
+<!-- /sponsors -->
+
 ## License
 
 Kagi is free to download and use, at home and at work. It isn't open source: see [LICENSE.txt](LICENSE.txt) for what you may and may not do with it.
