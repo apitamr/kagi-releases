@@ -53,7 +53,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        # Linux on both processors: ARM64 for ARM laptops and servers.
+        os: [ubuntu-latest, ubuntu-24.04-arm, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     defaults:
       run:
@@ -98,14 +99,15 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get install -y --no-install-recommends xvfb mesa-vulkan-drivers
-          sudo apt-get install -y ./target/linux-x86_64/kagi_*_amd64.deb
-          for app in kagi target/linux-x86_64/kagi-*-x86_64.AppImage; do
+          sudo apt-get install -y ./target/linux-$(uname -m)/kagi_*_$(dpkg --print-architecture).deb
+          for app in kagi target/linux-$(uname -m)/kagi-*-$(uname -m).AppImage; do
             status=0
             APPIMAGE_EXTRACT_AND_RUN=1 timeout 10 xvfb-run -a "$app" || status=$?
             [ "$status" = 124 ] || { echo "$app exited with $status" >&2; exit 1; }
           done
+      # x86-64 only, as Arch Linux (and Omarchy) is.
       - name: Arch package
-        if: runner.os == 'Linux'
+        if: runner.os == 'Linux' && runner.arch == 'X64'
         run: |
           mkdir arch && cp target/linux-x86_64/PKGBUILD target/linux-x86_64/kagi-*-x86_64.tar.gz arch/
           docker run --rm -v "$PWD/arch:/pkg" archlinux:latest sh -c '
@@ -132,9 +134,9 @@ jobs:
           fi
           # The Rust cache brings target/ back with the last run's Flatpak
           # folders cut down; flatpak-builder can't use what is left.
-          rm -rf target/linux-x86_64/flatpak-*
+          rm -rf target/linux-$(uname -m)/flatpak-*
           scripts/linux/flatpak.sh
-          flatpak install --user -y --noninteractive target/linux-x86_64/kagi-*-x86_64.flatpak
+          flatpak install --user -y --noninteractive target/linux-$(uname -m)/kagi-*-$(uname -m).flatpak
           flatpak info --user io.github.apitamr.kagi_releases.Kagi
       # The snap (Ubuntu's App Center, through the Snap Store), built on
       # this Ubuntu 24.04 as its base is, then installed.
@@ -146,12 +148,12 @@ jobs:
         run: |
           sudo snap install snapcraft --classic
           scripts/linux/snap.sh
-          sudo snap install --dangerous target/linux-x86_64/kagi_*_amd64.snap
+          sudo snap install --dangerous target/linux-$(uname -m)/kagi_*_$(dpkg --print-architecture).snap
           snap list kagi
       # What Flathub's review runs on the manifest, the listing and the
       # build; a finding is shown here but doesn't hold the release back.
       - name: Flathub lint
-        if: runner.os == 'Linux'
+        if: runner.os == 'Linux' && runner.arch == 'X64'
         continue-on-error: true
         run: |
           flatpak install --user -y --noninteractive flathub org.flatpak.Builder
@@ -183,18 +185,23 @@ jobs:
       - name: macOS app
         if: runner.os == 'macOS'
         run: make bundle dmg
+      # The PKGBUILD names the x86-64 tarball: the ARM job's would clash
+      # with it in the release.
+      - name: No ARM PKGBUILD
+        if: runner.os == 'Linux' && runner.arch == 'ARM64'
+        run: rm -f target/linux-*/PKGBUILD
       - uses: actions/upload-artifact@v4
         with:
-          name: kagi-${{ runner.os }}
+          name: kagi-${{ runner.os }}-${{ runner.arch }}
           retention-days: 3
           path: |
-            db-inu/target/linux-x86_64/*.tar.gz
-            db-inu/target/linux-x86_64/PKGBUILD
-            db-inu/target/linux-x86_64/*.deb
-            db-inu/target/linux-x86_64/*.pkg.tar.zst
-            db-inu/target/linux-x86_64/*.AppImage
-            db-inu/target/linux-x86_64/*.flatpak
-            db-inu/target/linux-x86_64/*.snap
+            db-inu/target/linux-*/*.tar.gz
+            db-inu/target/linux-*/PKGBUILD
+            db-inu/target/linux-*/*.deb
+            db-inu/target/linux-*/*.pkg.tar.zst
+            db-inu/target/linux-*/*.AppImage
+            db-inu/target/linux-*/*.flatpak
+            db-inu/target/linux-*/*.snap
             db-inu/target/windows/*.msi
             db-inu/target/release/bundle/*.dmg
           if-no-files-found: error
@@ -313,9 +320,11 @@ jobs:
             echo "::warning::No SNAPCRAFT_STORE_CREDENTIALS secret: the snap isn't on the Snap Store"
             exit 0
           fi
-          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" -p 'kagi_*_amd64.snap'
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" -p 'kagi_*.snap'
           sudo snap install snapcraft --classic
-          snapcraft upload --release=stable kagi_*_amd64.snap
+          for snap in kagi_*.snap; do
+            snapcraft upload --release=stable "$snap"
+          done
 
   # The package repositories on this repository's GitHub Pages
   # (https://apitamr.github.io/kagi-releases): APT, pacman and Flatpak,
@@ -366,7 +375,7 @@ jobs:
           mkdir files
           for tag in $(gh release list --repo "$GITHUB_REPOSITORY" --limit 3 --json tagName -q '.[].tagName'); do
             gh release download "$tag" --repo "$GITHUB_REPOSITORY" --dir files \
-              -p 'kagi_*_amd64.deb' -p 'kagi-bin-*.pkg.tar.zst' -p 'kagi-*-x86_64.flatpak' || true
+              -p 'kagi_*_*.deb' -p 'kagi-bin-*.pkg.tar.zst' -p 'kagi-*.flatpak' || true
           done
           ls -l files
       - name: The repositories

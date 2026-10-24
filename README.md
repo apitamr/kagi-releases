@@ -28,6 +28,8 @@ The video and screenshots show sample data.
 
 Click your system's button to download its file from the [latest release](https://github.com/apitamr/kagi-releases/releases/latest), then follow its section below.
 
+The Linux buttons are for Intel and AMD (x86-64). For 64-bit ARM (ARM laptops and servers, Linux on Apple silicon), the release has the same .deb, AppImage, Flatpak and snap built for it (`arm64`, `aarch64`); the APT and Flatpak repositories serve both.
+
 | System | Download | Updates |
 | --- | --- | --- |
 | macOS (Apple Silicon) | [![Download the .dmg](https://img.shields.io/badge/download-.dmg-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.5.0/kagi-0.5.0.dmg) | Download the new version when Kagi says there is one |
