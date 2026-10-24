@@ -13,6 +13,7 @@
   <a href="https://github.com/apitamr/kagi-releases/releases/latest"><img src="https://img.shields.io/github/v/release/apitamr/kagi-releases?label=latest&color=e8590c" alt="Latest release"></a>
   <a href="https://github.com/apitamr/kagi-releases/releases"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fapitamr%2Fkagi-releases%2Fmain%2Fstats%2Fdownloads.json" alt="Downloads"></a>
   <a href="https://snapcraft.io/kagi"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fapitamr%2Fkagi-releases%2Fmain%2Fstats%2Fsnap-installs.json" alt="Snap installs"></a>
+  <a href="https://github.com/sponsors/apitamr"><img src="https://img.shields.io/badge/sponsor-%E2%99%A5-e8590c" alt="Sponsor Kagi"></a>
 </p>
 
 <p align="center">
@@ -25,7 +26,7 @@ PostgreSQL, MySQL and MariaDB, SQLite, DuckDB, SQL Server, ClickHouse, Cockroach
 
 | System | Get it | Updates |
 | --- | --- | --- |
-| **macOS** (Apple silicon) | [![Download the .dmg](https://img.shields.io/badge/download-.dmg-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.5.7/kagi-0.5.7.dmg) | Kagi tells you; download the new one |
+| **macOS** (Apple silicon) | [![Download the .dmg](https://img.shields.io/badge/download-.dmg-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.5.7/kagi-0.5.7.dmg) | Download the new one from here |
 | **Windows** (x64) | [![Download the .msi](https://img.shields.io/badge/download-.msi-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.5.7/kagi-0.5.7-x64.msi) | Kagi installs them |
 | **Ubuntu** | `sudo snap install kagi`, or **App Center** | Automatic |
 | **Debian, Ubuntu** (.deb) | [![Download the .deb](https://img.shields.io/badge/download-.deb-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.5.7/kagi_0.5.7_amd64.deb) | Software Updater, or Kagi |
@@ -134,6 +135,19 @@ It needs FUSE 2: `sudo apt install libfuse2` (`libfuse2t64` on Ubuntu 24.04 and 
 ![Browsing a table](screenshots/table-dark.png)
 
 They show made-up sample data, in the dark theme.
+
+## Privacy
+
+Kagi has no telemetry, analytics, crash reporting, usage tracking, ads or account. It connects only to:
+
+- **What you add:** your databases, servers and storage, and the SSH hosts you tunnel through.
+- **GitHub, for updates** (Linux and Windows): to see whether a new version is out and to download it. The request carries nothing about you or your data, only what any web request does: your IP address and a `kagi` user agent. Turn it off in **Settings › Updates**. On macOS Kagi doesn't check at all.
+
+Your connections, queries, history and settings stay on your computer, and passwords stay in your system's keychain or keyring, never in Kagi's files. Stores and package managers (the Snap Store, Flatpak, APT) count installs themselves, as they do for every app.
+
+## Sponsor
+
+Kagi is free, and made by one person. If it saves you time, you can support its work on [GitHub Sponsors](https://github.com/sponsors/apitamr): it pays for the Apple and Windows signing certificates that would end the "allow it once" steps above, and for time on new engines and features.
 
 ## License
 
