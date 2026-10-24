@@ -32,11 +32,11 @@ The Linux buttons are for Intel and AMD (x86-64). For 64-bit ARM (ARM laptops an
 
 | System | Download | Updates |
 | --- | --- | --- |
-| macOS (Apple Silicon) | [![Download the .dmg](https://img.shields.io/badge/download-.dmg-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.5.1/kagi-0.5.1.dmg) | Download the new version when Kagi says there is one |
-| Windows (x64) | [![Download the .msi](https://img.shields.io/badge/download-.msi-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.5.1/kagi-0.5.1-x64.msi) | Installs them itself |
-| Linux, any distribution | [![Download the AppImage](https://img.shields.io/badge/download-AppImage-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.5.1/kagi-0.5.1-x86_64.AppImage) | Installs them itself |
-| Linux, any distribution (Flatpak) | [![Download the .flatpak](https://img.shields.io/badge/download-.flatpak-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.5.1/kagi-0.5.1-x86_64.flatpak) | Installs them itself, or `flatpak update` |
-| Debian, Ubuntu | [![Download the .deb](https://img.shields.io/badge/download-.deb-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.5.1/kagi_0.5.1_amd64.deb) | Installs them itself, or Software Updater |
+| macOS (Apple Silicon) | [![Download the .dmg](https://img.shields.io/badge/download-.dmg-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.5.2/kagi-0.5.2.dmg) | Download the new version when Kagi says there is one |
+| Windows (x64) | [![Download the .msi](https://img.shields.io/badge/download-.msi-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.5.2/kagi-0.5.2-x64.msi) | Installs them itself |
+| Linux, any distribution | [![Download the AppImage](https://img.shields.io/badge/download-AppImage-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.5.2/kagi-0.5.2-x86_64.AppImage) | Installs them itself |
+| Linux, any distribution (Flatpak) | [![Download the .flatpak](https://img.shields.io/badge/download-.flatpak-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.5.2/kagi-0.5.2-x86_64.flatpak) | Installs them itself, or `flatpak update` |
+| Debian, Ubuntu | [![Download the .deb](https://img.shields.io/badge/download-.deb-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.5.2/kagi_0.5.2_amd64.deb) | Installs them itself, or Software Updater |
 | Arch, Omarchy | `curl -fsSL https://apitamr.github.io/kagi-releases/arch/setup.sh \| sh` | Installs them itself, or `pacman -Syu` |
 
 ## macOS
