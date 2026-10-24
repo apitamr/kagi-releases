@@ -5,18 +5,127 @@
   </picture>
 </p>
 
-<h1 align="center">Kagi releases</h1>
+<h1 align="center">Kagi</h1>
 
-<p align="center">Builds of Kagi, a fast, lightweight database client for SQL, NoSQL and object storage.</p>
+<p align="center">A fast, lightweight database client for SQL, NoSQL and object storage.</p>
 
 <p align="center">
   <a href="https://github.com/apitamr/kagi-releases/releases/latest"><img src="https://img.shields.io/github/v/release/apitamr/kagi-releases?label=latest&color=e8590c" alt="Latest release"></a>
-  <a href="https://github.com/apitamr/kagi-releases/releases"><img src="https://img.shields.io/github/downloads/apitamr/kagi-releases/total?color=1c1713" alt="Downloads"></a>
+  <a href="https://github.com/apitamr/kagi-releases/releases"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fapitamr%2Fkagi-releases%2Fmain%2Fstats%2Fdownloads.json" alt="Downloads"></a>
+  <a href="https://snapcraft.io/kagi"><img src="https://img.shields.io/badge/Snap_Store-kagi-1c1713" alt="Kagi on the Snap Store"></a>
 </p>
 
 <p align="center">
   <img src="media/kagi-promo.gif" width="720" alt="Kagi in 26 seconds: the ad as a SQL query, every engine in one app, inline editing, autocomplete, the command palette, the schema diagram and 112 themes">
 </p>
+
+PostgreSQL, MySQL and MariaDB, SQLite, DuckDB, SQL Server, ClickHouse, CockroachDB, MongoDB, Redis and S3-compatible storage (Amazon S3, Cloudflare R2, MinIO) in one native app, with SSH tunnels, TLS and your passwords kept in the system's keychain.
+
+## Download
+
+| System | Get it | Updates |
+| --- | --- | --- |
+| **macOS** (Apple silicon) | [![Download the .dmg](https://img.shields.io/badge/download-.dmg-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.5.7/kagi-0.5.7.dmg) | Kagi tells you; download the new one |
+| **Windows** (x64) | [![Download the .msi](https://img.shields.io/badge/download-.msi-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.5.7/kagi-0.5.7-x64.msi) | Kagi installs them |
+| **Ubuntu** | `sudo snap install kagi`, or **App Center** | Automatic |
+| **Debian, Ubuntu** (.deb) | [![Download the .deb](https://img.shields.io/badge/download-.deb-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.5.7/kagi_0.5.7_amd64.deb) | Software Updater, or Kagi |
+| **Arch, Omarchy** | `curl -fsSL https://apitamr.github.io/kagi-releases/arch/setup.sh \| sh` | `pacman -Syu`, or Kagi |
+| **Any Linux** (Flatpak) | `flatpak install --user https://apitamr.github.io/kagi-releases/kagi.flatpakref` | `flatpak update`, or Kagi |
+| **Any Linux** (AppImage) | [![Download the AppImage](https://img.shields.io/badge/download-AppImage-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.5.7/kagi-0.5.7-x86_64.AppImage) | Kagi installs them |
+
+The Linux downloads above are for Intel and AMD (x86-64). Every Linux package except the Arch one also comes for 64-bit ARM (`arm64`, `aarch64`) on the [release page](https://github.com/apitamr/kagi-releases/releases/latest); the snap, APT and Flatpak repositories pick the right one themselves.
+
+## Install
+
+<details>
+<summary><b>macOS</b>: allow it once, as it isn't signed by Apple yet</summary>
+
+1. Open the `.dmg` and drag **Kagi** into **Applications**.
+2. Open Kagi. macOS says it can't verify it: click **Done**, not Move to Trash.
+3. In **System Settings › Privacy & Security**, under **Security**, click **Open Anyway** next to the message about Kagi, and confirm.
+
+Or, in Terminal, after step 1: `xattr -dr com.apple.quarantine /Applications/Kagi.app`
+
+After each update you may need to allow it again, and macOS asks once more before Kagi reads your saved passwords: click **Always Allow**. (Right-click › Open no longer works for this on macOS 15 and later.)
+
+</details>
+
+<details>
+<summary><b>Windows</b>: past SmartScreen, as it isn't code-signed yet</summary>
+
+Run the `.msi`. If **Windows protected your PC** shows, click **More info**, then **Run anyway**. Kagi is then in the Start menu.
+
+</details>
+
+<details>
+<summary><b>Ubuntu</b> (Snap Store)</summary>
+
+```sh
+sudo snap install kagi
+```
+
+or search for Kagi in the App Center. Until the Snap Store connects them by itself, give it the keyring (to save passwords) and your SSH keys (for tunnels); Kagi shows these commands where it needs them:
+
+```sh
+sudo snap connect kagi:password-manager-service
+sudo snap connect kagi:ssh-keys
+```
+
+</details>
+
+<details>
+<summary><b>Debian and Ubuntu</b> (.deb)</summary>
+
+```sh
+sudo apt install ./kagi_*_amd64.deb
+```
+
+or open it in your software centre. It adds Kagi's APT repository, so Software Updater brings new versions.
+
+</details>
+
+<details>
+<summary><b>Arch and Omarchy</b></summary>
+
+```sh
+curl -fsSL https://apitamr.github.io/kagi-releases/arch/setup.sh | sh
+```
+
+It trusts Kagi's signing key, adds the `[kagi]` repository to `/etc/pacman.conf` and installs `kagi-bin`, so `pacman -Syu` (and Omarchy's Update) keep it current. On Omarchy it follows your theme, light or dark.
+
+Optional: `openssh` for SSH tunnels, `postgresql` or `mariadb-clients` for dumps and restores. To remove it: `sudo pacman -R kagi-bin`. Coming to the AUR as `kagi-bin`.
+
+</details>
+
+<details>
+<summary><b>Flatpak</b> (any distribution)</summary>
+
+```sh
+flatpak install --user https://apitamr.github.io/kagi-releases/kagi.flatpakref
+```
+
+or install the release's `.flatpak` file. It updates from Kagi's repository. In its sandbox:
+
+- SSH tunnels work with your SSH agent's keys or a key file you pick; `~/.ssh` isn't reachable.
+- Files open and save through the file picker.
+- Dumps and restores don't work (no `pg_dump` or `mysqldump` inside); use another package for those.
+- Connect to local servers over `localhost`, not Unix sockets.
+
+</details>
+
+<details>
+<summary><b>AppImage</b> (any distribution)</summary>
+
+```sh
+chmod +x kagi-*-x86_64.AppImage
+./kagi-*-x86_64.AppImage
+```
+
+It needs FUSE 2: `sudo apt install libfuse2` (`libfuse2t64` on Ubuntu 24.04 and later) or `sudo pacman -S fuse2`.
+
+</details>
+
+## Screenshots
 
 | Running a query | A schema's diagram | Saved connections |
 | --- | --- | --- |
@@ -24,109 +133,10 @@
 
 ![Browsing a table](screenshots/table.png)
 
-The video and screenshots show sample data.
-
-Click your system's button to download its file from the [latest release](https://github.com/apitamr/kagi-releases/releases/latest), then follow its section below.
-
-The Linux buttons are for Intel and AMD (x86-64). For 64-bit ARM (ARM laptops and servers, Linux on Apple silicon), the release has the same .deb, AppImage, Flatpak and snap built for it (`arm64`, `aarch64`); the APT and Flatpak repositories serve both.
-
-| System | Download | Updates |
-| --- | --- | --- |
-| macOS (Apple Silicon) | [![Download the .dmg](https://img.shields.io/badge/download-.dmg-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.5.7/kagi-0.5.7.dmg) | Download the new version when Kagi says there is one |
-| Windows (x64) | [![Download the .msi](https://img.shields.io/badge/download-.msi-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.5.7/kagi-0.5.7-x64.msi) | Installs them itself |
-| Linux, any distribution | [![Download the AppImage](https://img.shields.io/badge/download-AppImage-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.5.7/kagi-0.5.7-x86_64.AppImage) | Installs them itself |
-| Linux, any distribution (Flatpak) | [![Download the .flatpak](https://img.shields.io/badge/download-.flatpak-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.5.7/kagi-0.5.7-x86_64.flatpak) | Installs them itself, or `flatpak update` |
-| Debian, Ubuntu | [![Download the .deb](https://img.shields.io/badge/download-.deb-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.5.7/kagi_0.5.7_amd64.deb) | Installs them itself, or Software Updater |
-| Arch, Omarchy | `curl -fsSL https://apitamr.github.io/kagi-releases/arch/setup.sh \| sh` | Installs them itself, or `pacman -Syu` |
-
-## macOS
-
-Kagi isn't signed with an Apple Developer ID yet, so macOS can't check it and blocks it the first time. You allow it once:
-
-1. Open the `.dmg` and drag **Kagi** into **Applications**.
-2. Open Kagi. macOS says it can't verify it: click **Done**, not Move to Trash.
-3. Open **System Settings › Privacy & Security**, scroll to **Security**, and click **Open Anyway** next to the message about Kagi. Confirm with your password or Touch ID.
-4. Kagi opens, and from now on it opens like any other app.
-
-Or, in Terminal, after step 1:
-
-```sh
-xattr -dr com.apple.quarantine /Applications/Kagi.app
-```
-
-**After each update**, macOS treats the new copy as a different app until Kagi is signed:
-
-- You may need to allow it again as above.
-- macOS asks once more before Kagi can read each saved password from your keychain. Click **Always Allow**.
-
-Right-clicking the app and choosing Open no longer gets past this on macOS 15 and later; use Privacy & Security.
-
-## Windows
-
-The installer isn't code-signed yet, so Windows SmartScreen may stop it.
-
-1. Run the `.msi`. If **Windows protected your PC** shows, click **More info**, then **Run anyway**.
-2. Follow the installer. Kagi is in the Start menu.
-
-Kagi checks for updates and installs them itself.
-
-## Linux
-
-### AppImage (any distribution)
-
-```sh
-chmod +x kagi-*-x86_64.AppImage
-./kagi-*-x86_64.AppImage
-```
-
-AppImages need FUSE 2. If it doesn't start, install it: `sudo pacman -S fuse2` on Arch, `sudo apt install libfuse2` on Debian and Ubuntu (`libfuse2t64` on Ubuntu 24.04 and later).
-
-Kagi checks for updates and installs them itself.
-
-### Flatpak (any distribution)
-
-```sh
-flatpak install --user https://apitamr.github.io/kagi-releases/kagi.flatpakref
-```
-
-or open the downloaded `.flatpak` (`flatpak install --user kagi-*-x86_64.flatpak`). Either way it fetches the runtime from Flathub if you don't have it, and updates from Kagi's repository: Kagi's **Update** installs the new version and restarts into it, and `flatpak update` or your software centre do too. Inside Flatpak's sandbox:
-
-- SSH tunnels work, as `ssh` comes with it, signing with your SSH agent's keys or a key file you pick; `~/.ssh` (its config and known hosts) is out of its reach.
-- It opens and saves files (SQLite and DuckDB databases, `.sql` files, exports) through the file picker; a path typed by hand isn't reachable.
-- Dumping and restoring don't, as `pg_dump`, `mysqldump` and the others aren't in the sandbox. Use another package for those.
-- Connect to local servers over TCP (`localhost`), not their Unix sockets.
-- Its saved connections are kept apart from another install's, in `~/.var/app/io.github.apitamr.kagi_releases.Kagi`.
-
-### Debian and Ubuntu
-
-```sh
-sudo apt install ./kagi_*_amd64.deb
-```
-
-or open it in your software centre. It adds Kagi's APT repository, so Software Updater brings new versions, and Kagi's **Update** installs them itself (asking for your password in the system's dialog).
-
-### Arch and Omarchy
-
-```sh
-curl -fsSL https://apitamr.github.io/kagi-releases/arch/setup.sh | sh
-```
-
-It trusts Kagi's signing key, adds the `[kagi]` repository to `/etc/pacman.conf` and installs `kagi-bin`; `pacman -Syu` (and Omarchy's Update) keep it up to date, and Kagi's **Update** installs a new version itself (asking for your password in the system's dialog).
-
-Or build it by hand: download the release's tarball and `PKGBUILD` into one folder, then run `makepkg -si` there; `pacman -Syu` doesn't update that copy, but Kagi's **Update** still does.
-
-For SSH tunnels Kagi uses `ssh` (`openssh`); for dumps and restores, `pg_dump` and `psql` (`postgresql`) or `mysqldump` and `mysql` (`mariadb-clients`).
-
-Kagi then shows in your app launcher. On Omarchy it follows your theme, light or dark, unless you turn that off in its Settings.
-
-It is coming to the AUR as `kagi-bin`, for `yay -S kagi-bin` and Omarchy's **Install › AUR**.
-
-To remove it: `sudo pacman -R kagi-bin`.
+They show sample data.
 
 ## License
 
 Kagi is free to download and use, at home and at work. It isn't open source: see [LICENSE.txt](LICENSE.txt) for what you may and may not do with it.
 
-## About this repository
-
-It holds the builds only; the source is private. Kagi checks this repository's latest release for updates.
+This repository holds the builds only; the source is private. Kagi checks its latest release for updates.

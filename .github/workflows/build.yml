@@ -210,10 +210,13 @@ jobs:
   # Publishes the packages as this repository's release of the tag, its
   # notes the version's section of the source's CHANGELOG.md (else the
   # commits since the version tag before it).
+  # After the package repositories, so a copy that updates from them
+  # (Flatpak, apt upgrade) finds the version as soon as Kagi says it's out;
+  # their failing doesn't hold the release back.
   release:
     name: release
-    needs: package
-    if: inputs.publish
+    needs: [package, pages]
+    if: always() && inputs.publish && needs.package.result == 'success'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -312,18 +315,23 @@ jobs:
     if: inputs.publish
     runs-on: ubuntu-latest
     steps:
+      # The build's own snaps, not the release's: its download counts stay
+      # people's.
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: kagi-Linux-*
+          path: built
+          merge-multiple: true
       - name: Upload
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
-          GH_TOKEN: ${{ github.token }}
         run: |
           if [ -z "$SNAPCRAFT_STORE_CREDENTIALS" ]; then
             echo "::warning::No SNAPCRAFT_STORE_CREDENTIALS secret: the snap isn't on the Snap Store"
             exit 0
           fi
-          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" -p 'kagi_*.snap'
           sudo snap install snapcraft --classic
-          for snap in kagi_*.snap; do
+          for snap in $(find built -type f -name 'kagi_*.snap'); do
             snapcraft upload --release=stable "$snap"
           done
 
@@ -334,7 +342,7 @@ jobs:
   # update with the system and from Kagi's Update button.
   pages:
     name: pages
-    needs: release
+    needs: package
     if: inputs.publish
     runs-on: ubuntu-latest
     permissions:
@@ -367,16 +375,35 @@ jobs:
           token: ${{ secrets.SOURCE_TOKEN }}
           path: source
       # The last three releases' packages: a system a version or two behind
-      # still finds its own, and the site stays small.
+      # still finds its own, and the site stays small. Never downloaded from
+      # the releases, so their download counts stay people's: this one's
+      # from the build's own files, the two before from the live site
+      # (only the newest Flatpak bundle is used, so theirs aren't needed).
+      - uses: actions/download-artifact@v4
+        if: steps.key.outputs.present == 'true'
+        with:
+          pattern: kagi-Linux-*
+          path: built
+          merge-multiple: true
       - name: The packages
         if: steps.key.outputs.present == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           mkdir files
-          for tag in $(gh release list --repo "$GITHUB_REPOSITORY" --limit 3 --json tagName -q '.[].tagName'); do
-            gh release download "$tag" --repo "$GITHUB_REPOSITORY" --dir files \
-              -p 'kagi_*_*.deb' -p 'kagi-bin-*.pkg.tar.zst' -p 'kagi-*.flatpak' || true
+          find built -type f \( -name 'kagi_*_*.deb' -o -name 'kagi-bin-*.pkg.tar.zst' -o -name 'kagi-*.flatpak' \) \
+            -exec cp {} files/ \;
+          site=https://apitamr.github.io/kagi-releases
+          # This release isn't out yet (or is, when run again): the two
+          # newest besides it.
+          for version in $(gh release list --repo "$GITHUB_REPOSITORY" --limit 3 --json tagName \
+              -q '.[].tagName | ltrimstr("v")' | grep -vx "${TAG#v}" | head -n 2); do
+            for arch in amd64 arm64; do
+              curl -fsSL -o "files/kagi_${version}_$arch.deb" "$site/apt/pool/main/kagi_${version}_$arch.deb" ||
+                rm -f "files/kagi_${version}_$arch.deb"
+            done
+            curl -fsSL -o "files/kagi-bin-$version-1-x86_64.pkg.tar.zst" "$site/arch/x86_64/kagi-bin-$version-1-x86_64.pkg.tar.zst" ||
+              rm -f "files/kagi-bin-$version-1-x86_64.pkg.tar.zst"
           done
           ls -l files
       - name: The repositories

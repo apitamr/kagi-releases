@@ -1,0 +1,37 @@
+# The README's download count: people's downloads of the releases' files,
+# written as a shields.io endpoint badge (stats/downloads.json) when it
+# changes. Until 0.5.7 (stats/ci-until, its publishing time) the builds
+# downloaded their own packages (.deb, Arch, Flatpak, snap) to make the
+# repositories, so those releases' packages aren't counted.
+name: stats
+
+on:
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  downloads:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: People's downloads
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          until=$(cat stats/ci-until)
+          real=$(gh api "repos/$GITHUB_REPOSITORY/releases" --paginate --jq \
+            ".[] | (.published_at <= \"$until\") as \$built
+              | .assets[] | select((\$built and (.name | test(\"[.](deb|flatpak|snap)\$|[.]pkg[.]tar[.]zst\$\"))) | not)
+              | .download_count" | awk '{t += $1} END {print t + 0}')
+          printf '{"schemaVersion":1,"label":"downloads","message":"%s","color":"1c1713"}\n' \
+            "$real" > stats/downloads.json
+          git diff --quiet && exit 0
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git commit -am "stats: $real downloads"
+          git pull --rebase
+          git push
