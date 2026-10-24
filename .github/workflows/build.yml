@@ -54,7 +54,9 @@ jobs:
       fail-fast: false
       matrix:
         # Linux on both processors: ARM64 for ARM laptops and servers.
-        os: [ubuntu-latest, ubuntu-24.04-arm, windows-latest, macos-latest]
+        # Ubuntu 24.04 on both, pinned: the snap builds on the release its
+        # base is (core24), and ubuntu-latest moves on.
+        os: [ubuntu-24.04, ubuntu-24.04-arm, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     defaults:
       run:
