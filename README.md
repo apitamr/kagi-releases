@@ -33,9 +33,9 @@ Click your system's button to download its file from the [latest release](https:
 | macOS (Apple Silicon) | [![Download the .dmg](https://img.shields.io/badge/download-.dmg-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.4.0/kagi-0.4.0.dmg) | Download the new version when Kagi says there is one |
 | Windows (x64) | [![Download the .msi](https://img.shields.io/badge/download-.msi-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.4.0/kagi-0.4.0-x64.msi) | Installs them itself |
 | Linux, any distribution | [![Download the AppImage](https://img.shields.io/badge/download-AppImage-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.4.0/kagi-0.4.0-x86_64.AppImage) | Installs them itself |
-| Linux, any distribution (Flatpak) | [![Download the .flatpak](https://img.shields.io/badge/download-.flatpak-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.4.0/kagi-0.4.0-x86_64.flatpak) | Download the new version when Kagi says there is one |
-| Debian, Ubuntu | [![Download the .deb](https://img.shields.io/badge/download-.deb-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.4.0/kagi_0.4.0_amd64.deb) | Download the new version when Kagi says there is one |
-| Arch, Omarchy | [![Download the .tar.gz](https://img.shields.io/badge/download-.tar.gz-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.4.0/kagi-0.4.0-x86_64.tar.gz) [![Download the PKGBUILD](https://img.shields.io/badge/download-PKGBUILD-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.4.0/PKGBUILD) | Download the new version when Kagi says there is one |
+| Linux, any distribution (Flatpak) | [![Download the .flatpak](https://img.shields.io/badge/download-.flatpak-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.4.0/kagi-0.4.0-x86_64.flatpak) | Installs them itself, or `flatpak update` |
+| Debian, Ubuntu | [![Download the .deb](https://img.shields.io/badge/download-.deb-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.4.0/kagi_0.4.0_amd64.deb) | Installs them itself, or Software Updater |
+| Arch, Omarchy | `curl -fsSL https://apitamr.github.io/kagi-releases/arch/setup.sh \| sh` | Installs them itself, or `pacman -Syu` |
 
 ## macOS
 
@@ -84,11 +84,10 @@ Kagi checks for updates and installs them itself.
 ### Flatpak (any distribution)
 
 ```sh
-flatpak install --user kagi-*-x86_64.flatpak
-flatpak run io.github.apitamr.kagi_releases.Kagi
+flatpak install --user https://apitamr.github.io/kagi-releases/kagi.flatpakref
 ```
 
-It fetches the runtime from Flathub if you don't have it. Inside Flatpak's sandbox:
+or open the downloaded `.flatpak` (`flatpak install --user kagi-*-x86_64.flatpak`). Either way it fetches the runtime from Flathub if you don't have it, and updates from Kagi's repository: Kagi's **Update** installs the new version and restarts into it, and `flatpak update` or your software centre do too. Inside Flatpak's sandbox:
 
 - SSH tunnels work, as `ssh` comes with it, signing with your SSH agent's keys or a key file you pick; `~/.ssh` (its config and known hosts) is out of its reach.
 - It opens and saves files (SQLite and DuckDB databases, `.sql` files, exports) through the file picker; a path typed by hand isn't reachable.
@@ -102,13 +101,17 @@ It fetches the runtime from Flathub if you don't have it. Inside Flatpak's sandb
 sudo apt install ./kagi_*_amd64.deb
 ```
 
+or open it in your software centre. It adds Kagi's APT repository, so Software Updater brings new versions, and Kagi's **Update** installs them itself (asking for your password in the system's dialog).
+
 ### Arch and Omarchy
 
-Download the release's tarball and `PKGBUILD` into one folder, then in that folder:
-
 ```sh
-makepkg -si
+curl -fsSL https://apitamr.github.io/kagi-releases/arch/setup.sh | sh
 ```
+
+It trusts Kagi's signing key, adds the `[kagi]` repository to `/etc/pacman.conf` and installs `kagi-bin`; `pacman -Syu` (and Omarchy's Update) keep it up to date, and Kagi's **Update** installs a new version itself (asking for your password in the system's dialog).
+
+Or build it by hand: download the release's tarball and `PKGBUILD` into one folder, then run `makepkg -si` there; `pacman -Syu` doesn't update that copy, but Kagi's **Update** still does.
 
 For SSH tunnels Kagi uses `ssh` (`openssh`); for dumps and restores, `pg_dump` and `psql` (`postgresql`) or `mysqldump` and `mysql` (`mariadb-clients`).
 

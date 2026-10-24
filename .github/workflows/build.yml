@@ -11,6 +11,9 @@
 # and apitamr/slop-ui (the ui crate, checked out next to it by path).
 # AUR_SSH_KEY: the private SSH key of the AUR account that keeps kagi-bin;
 # without it a release is not pushed to the AUR.
+# REPO_GPG_KEY: the private key that signs the package repositories on this
+# repository's GitHub Pages (scripts/linux/repo_key.sh in the source makes
+# it); without it they are not published.
 #
 # The logs are public: nothing here prints the source, and the packages
 # uploaded between jobs are the ones published anyway.
@@ -107,7 +110,11 @@ jobs:
             useradd -m builder && cp -r /pkg /home/builder/pkg && chown -R builder /home/builder/pkg
             su builder -c "cd ~/pkg && makepkg --nodeps --noconfirm" >/dev/null
             pacman -U --noconfirm /home/builder/pkg/kagi-bin-*.pkg.tar.zst
-            test -x /usr/bin/kagi && test -f /usr/share/applications/dev.kagi.desktop'
+            test -x /usr/bin/kagi && test -f /usr/share/applications/dev.kagi.desktop
+            cp /home/builder/pkg/kagi-bin-*.pkg.tar.zst /pkg/'
+          # Published with the release: the pacman repository serves it, and
+          # Kagi's Update installs it.
+          sudo cp arch/kagi-bin-*.pkg.tar.zst target/linux-x86_64/
       - name: Flatpak
         if: runner.os == 'Linux'
         run: |
@@ -161,6 +168,7 @@ jobs:
             db-inu/target/linux-x86_64/*.tar.gz
             db-inu/target/linux-x86_64/PKGBUILD
             db-inu/target/linux-x86_64/*.deb
+            db-inu/target/linux-x86_64/*.pkg.tar.zst
             db-inu/target/linux-x86_64/*.AppImage
             db-inu/target/linux-x86_64/*.flatpak
             db-inu/target/windows/*.msi
@@ -263,3 +271,71 @@ jobs:
           git add PKGBUILD .SRCINFO
           git commit -m "Update to ${TAG#v}"
           git push origin HEAD:master
+
+  # The package repositories on this repository's GitHub Pages
+  # (https://apitamr.github.io/kagi-releases): APT, pacman and Flatpak,
+  # made again from the last releases' files and signed (the source's
+  # scripts/linux/repos.sh), so the .deb, the Arch package and the Flatpak
+  # update with the system and from Kagi's Update button.
+  pages:
+    name: pages
+    needs: release
+    if: inputs.publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: A signing key
+        id: key
+        env:
+          REPO_GPG_KEY: ${{ secrets.REPO_GPG_KEY }}
+        run: |
+          if [ -z "$REPO_GPG_KEY" ]; then
+            echo "::warning::No REPO_GPG_KEY secret: the package repositories aren't published"
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          printf '%s\n' "$REPO_GPG_KEY" | gpg --batch --import
+          fingerprint=$(gpg --list-secret-keys --with-colons | awk -F: '/^fpr/ {print $10; exit}')
+          echo "REPO_GPG_KEY_ID=$fingerprint" >> "$GITHUB_ENV"
+          echo "present=true" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v4
+        if: steps.key.outputs.present == 'true'
+        with:
+          repository: apitamr/kagi
+          ref: ${{ env.TAG }}
+          token: ${{ secrets.SOURCE_TOKEN }}
+          path: source
+      # The last three releases' packages: a system a version or two behind
+      # still finds its own, and the site stays small.
+      - name: The packages
+        if: steps.key.outputs.present == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir files
+          for tag in $(gh release list --repo "$GITHUB_REPOSITORY" --limit 3 --json tagName -q '.[].tagName'); do
+            gh release download "$tag" --repo "$GITHUB_REPOSITORY" --dir files \
+              -p 'kagi_*_amd64.deb' -p 'kagi-bin-*.pkg.tar.zst' -p 'kagi-*-x86_64.flatpak' || true
+          done
+          ls -l files
+      - name: The repositories
+        if: steps.key.outputs.present == 'true'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends apt-utils flatpak ostree
+          source/scripts/linux/repos.sh files site
+      - uses: actions/configure-pages@v5
+        if: steps.key.outputs.present == 'true'
+      - uses: actions/upload-pages-artifact@v3
+        if: steps.key.outputs.present == 'true'
+        with:
+          path: site
+      - uses: actions/deploy-pages@v4
+        if: steps.key.outputs.present == 'true'
+        id: deploy
