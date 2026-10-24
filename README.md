@@ -133,7 +133,7 @@ It needs FUSE 2: `sudo apt install libfuse2` (`libfuse2t64` on Ubuntu 24.04 and 
 
 ![Browsing a table](screenshots/table.png)
 
-They show sample data.
+They show made-up sample data, in the dark theme.
 
 ## License
 
