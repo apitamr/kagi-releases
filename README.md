@@ -13,7 +13,6 @@
   <a href="https://github.com/apitamr/kagi-releases/releases/latest"><img src="https://img.shields.io/github/v/release/apitamr/kagi-releases?label=latest&color=e8590c" alt="Latest release"></a>
   <a href="https://github.com/apitamr/kagi-releases/releases"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fapitamr%2Fkagi-releases%2Fmain%2Fstats%2Fdownloads.json" alt="Downloads"></a>
   <a href="https://snapcraft.io/kagi"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fapitamr%2Fkagi-releases%2Fmain%2Fstats%2Fsnap-installs.json" alt="Snap installs"></a>
-  <a href="https://snapcraft.io/kagi"><img src="https://img.shields.io/badge/Snap_Store-kagi-1c1713" alt="Kagi on the Snap Store"></a>
 </p>
 
 <p align="center">
