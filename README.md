@@ -129,9 +129,9 @@ It needs FUSE 2: `sudo apt install libfuse2` (`libfuse2t64` on Ubuntu 24.04 and 
 
 | Running a query | A schema's diagram | Saved connections |
 | --- | --- | --- |
-| ![Running a query, in the dark theme](screenshots/query.png) | ![A schema's diagram](screenshots/diagram.png) | ![Saved connections](screenshots/connections.png) |
+| ![Running a query, in the dark theme](screenshots/query-dark.png) | ![A schema's diagram](screenshots/diagram-dark.png) | ![Saved connections](screenshots/connections-dark.png) |
 
-![Browsing a table](screenshots/table.png)
+![Browsing a table](screenshots/table-dark.png)
 
 They show made-up sample data, in the dark theme.
 
