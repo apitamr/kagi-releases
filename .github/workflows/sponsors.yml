@@ -1,7 +1,8 @@
 # The README's sponsors: each public sponsor's avatar, linked to them,
 # between the <!-- sponsors --> markers, written when it changes. The job's
 # own token can't see sponsorships, so it reads them with SPONSORS_TOKEN,
-# a token of the maintainer's with read:user.
+# a token of the maintainer's with read:user (an organization by its name,
+# as its login would need read:org).
 name: sponsors
 
 on:
@@ -25,14 +26,14 @@ jobs:
             echo "::warning::No SPONSORS_TOKEN secret: the README's sponsors aren't updated"
             exit 0
           fi
-          gh api graphql -f query='{ user(login: "apitamr") { sponsorshipsAsMaintainer(first: 100, activeOnly: true) { nodes { privacyLevel sponsorEntity { ... on User { login url avatarUrl } ... on Organization { login url avatarUrl } } } } } }' \
+          gh api graphql -f query='{ user(login: "apitamr") { sponsorshipsAsMaintainer(first: 100, activeOnly: true) { nodes { privacyLevel sponsorEntity { ... on User { login url avatarUrl } ... on Organization { name url avatarUrl } } } } } }' \
             --jq '[.data.user.sponsorshipsAsMaintainer.nodes[] | select(.privacyLevel == "PUBLIC") | .sponsorEntity]' > sponsors.json
           python3 - <<'PY'
           import json, re
           sponsors = json.load(open("sponsors.json"))
           if sponsors:
               body = " ".join(
-                  f'<a href="{s["url"]}"><img src="{s["avatarUrl"]}&s=96" width="48" height="48" alt="{s["login"]}" title="{s["login"]}"></a>'
+                  f'<a href="{s["url"]}"><img src="{s["avatarUrl"]}&s=96" width="48" height="48" alt="{s.get("login") or s.get("name")}" title="{s.get("login") or s.get("name")}"></a>'
                   for s in sponsors
               )
           else:
