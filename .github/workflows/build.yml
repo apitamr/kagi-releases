@@ -11,6 +11,9 @@
 # and apitamr/slop-ui (the ui crate, checked out next to it by path).
 # AUR_SSH_KEY: the private SSH key of the AUR account that keeps kagi-bin;
 # without it a release is not pushed to the AUR.
+# SNAPCRAFT_STORE_CREDENTIALS: `snapcraft export-login` of the Snap Store
+# account that owns the kagi snap; without it the snap is attached to the
+# release but not uploaded to the Store.
 # REPO_GPG_KEY: the private key that signs the package repositories on this
 # repository's GitHub Pages (scripts/linux/repo_key.sh in the source makes
 # it); without it they are not published.
@@ -133,6 +136,18 @@ jobs:
           scripts/linux/flatpak.sh
           flatpak install --user -y --noninteractive target/linux-x86_64/kagi-*-x86_64.flatpak
           flatpak info --user io.github.apitamr.kagi_releases.Kagi
+      # The snap (Ubuntu's App Center, through the Snap Store), built on
+      # this Ubuntu 24.04 as its base is, then installed.
+      - name: Snap
+        if: runner.os == 'Linux'
+        # New: a failure warns rather than holding the release back, until
+        # the snap has built through a release.
+        continue-on-error: true
+        run: |
+          sudo snap install snapcraft --classic
+          scripts/linux/snap.sh
+          sudo snap install --dangerous target/linux-x86_64/kagi_*_amd64.snap
+          snap list kagi
       # What Flathub's review runs on the manifest, the listing and the
       # build; a finding is shown here but doesn't hold the release back.
       - name: Flathub lint
@@ -179,6 +194,7 @@ jobs:
             db-inu/target/linux-x86_64/*.pkg.tar.zst
             db-inu/target/linux-x86_64/*.AppImage
             db-inu/target/linux-x86_64/*.flatpak
+            db-inu/target/linux-x86_64/*.snap
             db-inu/target/windows/*.msi
             db-inu/target/release/bundle/*.dmg
           if-no-files-found: error
@@ -279,6 +295,27 @@ jobs:
           git add PKGBUILD .SRCINFO
           git commit -m "Update to ${TAG#v}"
           git push origin HEAD:master
+
+  # The release's snap on the Snap Store's stable channel, so Ubuntu's App
+  # Center lists and updates it.
+  snap:
+    name: snap
+    needs: release
+    if: inputs.publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Upload
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ -z "$SNAPCRAFT_STORE_CREDENTIALS" ]; then
+            echo "::warning::No SNAPCRAFT_STORE_CREDENTIALS secret: the snap isn't on the Snap Store"
+            exit 0
+          fi
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" -p 'kagi_*_amd64.snap'
+          sudo snap install snapcraft --classic
+          snapcraft upload --release=stable kagi_*_amd64.snap
 
   # The package repositories on this repository's GitHub Pages
   # (https://apitamr.github.io/kagi-releases): APT, pacman and Flatpak,
