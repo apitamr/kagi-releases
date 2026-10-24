@@ -117,8 +117,16 @@ jobs:
           sudo cp arch/kagi-bin-*.pkg.tar.zst target/linux-x86_64/
       - name: Flatpak
         if: runner.os == 'Linux'
+        env:
+          REPO_GPG_KEY: ${{ secrets.REPO_GPG_KEY }}
         run: |
           sudo apt-get install -y --no-install-recommends flatpak flatpak-builder elfutils
+          # Signed with the repositories' key, the bundle updates from Kagi's
+          # Flatpak repository (scripts/linux/flatpak.sh); without it, plain.
+          if [ -n "$REPO_GPG_KEY" ]; then
+            printf '%s\n' "$REPO_GPG_KEY" | gpg --batch --import
+            export REPO_GPG_KEY_ID=$(gpg --list-secret-keys --with-colons | awk -F: '/^fpr/ {print $10; exit}')
+          fi
           # The Rust cache brings target/ back with the last run's Flatpak
           # folders cut down; flatpak-builder can't use what is left.
           rm -rf target/linux-x86_64/flatpak-*
