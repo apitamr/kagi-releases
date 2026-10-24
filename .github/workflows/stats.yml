@@ -1,8 +1,12 @@
-# The README's download count: people's downloads of the releases' files,
-# written as a shields.io endpoint badge (stats/downloads.json) when it
-# changes. Until 0.5.7 (stats/ci-until, its publishing time) the builds
-# downloaded their own packages (.deb, Arch, Flatpak, snap) to make the
-# repositories, so those releases' packages aren't counted.
+# The README's counts, as shields.io endpoint badges written when they
+# change:
+# - stats/downloads.json, people's downloads of the releases' files. Until
+#   0.5.7 (stats/ci-until, its publishing time) the builds downloaded their
+#   own packages (.deb, Arch, Flatpak, snap) to make the repositories, so
+#   those releases' packages aren't counted.
+# - stats/snap-installs.json, the machines the Snap Store says have Kagi
+#   installed, from its metrics (the store login needs package_metrics).
+# The APT, pacman and Flatpak repositories on Pages can't be counted.
 name: stats
 
 on:
@@ -14,7 +18,7 @@ permissions:
   contents: write
 
 jobs:
-  downloads:
+  counts:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -29,9 +33,30 @@ jobs:
               | .download_count" | awk '{t += $1} END {print t + 0}')
           printf '{"schemaVersion":1,"label":"downloads","message":"%s","color":"1c1713"}\n' \
             "$real" > stats/downloads.json
-          git diff --quiet && exit 0
+      - name: Snap installs
+        # A missing login or metric only warns: the downloads still go out.
+        continue-on-error: true
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
+        run: |
+          if [ -z "$SNAPCRAFT_STORE_CREDENTIALS" ]; then
+            echo "::warning::No SNAPCRAFT_STORE_CREDENTIALS secret: no snap installs"
+            exit 0
+          fi
+          sudo snap install snapcraft --classic
+          # The latest day the Store has counted, summed over the channels.
+          snapcraft metrics kagi --name installed_base_by_channel --format json \
+            --start "$(date -u -d '-7 days' +%Y-%m-%d)" --end "$(date -u +%Y-%m-%d)" > metrics.json
+          cat metrics.json
+          installs=$(jq '[.series[].values | map(select(. != null)) | last // 0] | add // 0' metrics.json)
+          printf '{"schemaVersion":1,"label":"installs (snap)","message":"%s","color":"1c1713"}\n' \
+            "$installs" > stats/snap-installs.json
+      - name: Commit
+        run: |
+          git add stats
+          git diff --cached --quiet && exit 0
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git commit -am "stats: $real downloads"
+          git commit -m "stats: $(jq -r .message stats/downloads.json) downloads"
           git pull --rebase
           git push
