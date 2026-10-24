@@ -7,7 +7,7 @@
 
 <h1 align="center">Kagi releases</h1>
 
-<p align="center">Builds of Kagi, a compact database client for PostgreSQL, MySQL/MariaDB, SQLite, DuckDB, SQL Server, ClickHouse, MongoDB and Redis.</p>
+<p align="center">Builds of Kagi, a fast, lightweight database client for SQL, NoSQL and object storage.</p>
 
 <p align="center">
   <a href="https://github.com/apitamr/kagi-releases/releases/latest"><img src="https://img.shields.io/github/v/release/apitamr/kagi-releases?label=latest&color=e8590c" alt="Latest release"></a>
