@@ -3,3 +3,9 @@ contact_links:
   - name: Download Kagi
     url: https://github.com/apitamr/kagi-releases/releases/latest
     about: The latest release for macOS, Windows and Linux.
+  - name: Question or idea to talk over
+    url: https://github.com/apitamr/kagi-releases/discussions
+    about: Ask how to do something, or share an idea before it's a request.
+  - name: Security problem
+    url: https://github.com/apitamr/kagi-releases/security/advisories/new
+    about: Report it privately, not in a public issue.

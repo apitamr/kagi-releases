@@ -6,7 +6,7 @@ body:
     id: database
     attributes:
       label: Database
-      placeholder: "Oracle, CockroachDB, Cassandra, …"
+      placeholder: "Oracle, Cassandra, Elasticsearch, …"
     validations:
       required: true
   - type: input

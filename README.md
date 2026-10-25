@@ -158,4 +158,13 @@ No sponsors yet. [Be the first](https://github.com/sponsors/apitamr).
 
 Kagi is free to download and use, at home and at work. It isn't open source: see [LICENSE.txt](LICENSE.txt) for what you may and may not do with it.
 
-This repository holds the builds only; the source is private. Kagi checks its latest release for updates.
+## About this repository
+
+It holds Kagi's builds, not its source, which is private. Use it to:
+
+- **Report a bug or ask for a feature** in [Issues](https://github.com/apitamr/kagi-releases/issues/new/choose).
+- **Ask a question or share an idea** in [Discussions](https://github.com/apitamr/kagi-releases/discussions).
+- **Report a security problem** privately, as [SECURITY.md](SECURITY.md) says.
+- **See what changed** in each [release's notes](https://github.com/apitamr/kagi-releases/releases).
+
+Kagi checks this repository's latest release for updates.

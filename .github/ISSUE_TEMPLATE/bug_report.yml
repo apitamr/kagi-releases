@@ -10,7 +10,7 @@ body:
     attributes:
       label: Kagi version
       description: Settings → Updates, or the release you downloaded.
-      placeholder: "0.1.0"
+      placeholder: "0.5.7"
     validations:
       required: true
   - type: dropdown
@@ -20,11 +20,11 @@ body:
       options:
         - macOS (.dmg)
         - Windows (.msi)
-        - Linux AppImage
+        - Ubuntu (Snap Store)
+        - Debian / Ubuntu (.deb or APT)
+        - Arch / Omarchy (pacman)
         - Linux Flatpak
-        - Debian / Ubuntu (.deb)
-        - Arch (PKGBUILD / AUR)
-        - Built from source
+        - Linux AppImage
     validations:
       required: true
   - type: input
@@ -39,6 +39,7 @@ body:
     attributes:
       label: Database
       description: The one you were connected to, if any.
+      multiple: true
       options:
         - Not about a database
         - PostgreSQL
@@ -48,8 +49,10 @@ body:
         - DuckDB
         - SQL Server
         - ClickHouse
+        - CockroachDB
         - MongoDB
         - Redis / Valkey
+        - S3, R2 or MinIO
     validations:
       required: true
   - type: textarea

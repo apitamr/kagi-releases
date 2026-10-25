@@ -31,8 +31,10 @@ body:
         - DuckDB
         - SQL Server
         - ClickHouse
+        - CockroachDB
         - MongoDB
         - Redis / Valkey
+        - S3, R2 or MinIO
   - type: textarea
     id: elsewhere
     attributes:
