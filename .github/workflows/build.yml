@@ -221,8 +221,11 @@ jobs:
     permissions:
       contents: write
     steps:
+      # The packages' artifacts only: the pages job's (its site as
+      # artifact.tar) is in the run too.
       - uses: actions/download-artifact@v4
         with:
+          pattern: kagi-*
           path: dist
           merge-multiple: true
       - uses: actions/checkout@v4
