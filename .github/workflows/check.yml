@@ -117,6 +117,7 @@ jobs:
         working-directory: db-inu
     env:
       KAGI_TEST_POSTGRES: host=localhost port=54329 user=postgres dbname=postgres
+      KAGI_TEST_POSTGIS: host=localhost port=55433 user=postgres dbname=postgres
       KAGI_TEST_MYSQL: mysql://root:pw@127.0.0.1:33061/shop
       KAGI_TEST_MARIADB: mariadb://root:pw@127.0.0.1:33062/shop
       KAGI_TEST_MYSQL_CERTS: /tmp/mysql-certs
@@ -146,6 +147,7 @@ jobs:
           # Socket folders the servers' own users can write.
           mkdir -m 777 /tmp/pgsock /tmp/mysqld /tmp/mariadbd
           docker run -d --name pg -p 54329:5432 -v /tmp/pgsock:/var/run/postgresql -e POSTGRES_HOST_AUTH_METHOD=trust postgres:17
+          docker run -d --name postgis -p 55433:5432 -e POSTGRES_HOST_AUTH_METHOD=trust postgis/postgis:17-3.5
           docker run -d --name kagi-mysql -p 33061:3306 -v /tmp/mysqld:/var/run/mysqld -e MYSQL_ROOT_PASSWORD=pw -e MYSQL_DATABASE=shop mysql:8
           docker run -d --name kagi-mariadb -p 33062:3306 -v /tmp/mariadbd:/run/mysqld -e MARIADB_ROOT_PASSWORD=pw -e MARIADB_DATABASE=shop mariadb:11
           docker run -d --name m1 -p 27019:27017 mongo:7.0
@@ -175,6 +177,7 @@ jobs:
         run: |
           for _ in $(seq 60); do
             docker exec pg pg_isready -q \
+              && docker exec postgis pg_isready -q \
               && docker exec kagi-mysql mysql -uroot -ppw -e 'select 1' shop >/dev/null 2>&1 \
               && docker exec kagi-mariadb mariadb -uroot -ppw -e 'select 1' shop >/dev/null 2>&1 \
               && break
