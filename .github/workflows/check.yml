@@ -55,25 +55,25 @@ jobs:
       matrix:
         os: >-
           ${{ fromJSON(
-            github.event_name == 'schedule' && '["ubuntu-latest","windows-latest"]'
-            || inputs.windows && inputs.macos && '["ubuntu-latest","windows-latest","macos-latest"]'
-            || inputs.windows && '["ubuntu-latest","windows-latest"]'
-            || inputs.macos && '["ubuntu-latest","macos-latest"]'
-            || '["ubuntu-latest"]') }}
+            github.event_name == 'schedule' && '["ubuntu-24.04","windows-latest"]'
+            || inputs.windows && inputs.macos && '["ubuntu-24.04","windows-latest","macos-latest"]'
+            || inputs.windows && '["ubuntu-24.04","windows-latest"]'
+            || inputs.macos && '["ubuntu-24.04","macos-latest"]'
+            || '["ubuntu-24.04"]') }}
     runs-on: ${{ matrix.os }}
     defaults:
       run:
         shell: bash
         working-directory: db-inu
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           repository: apitamr/kagi
           ref: ${{ env.REF }}
           token: ${{ secrets.SOURCE_TOKEN }}
           path: db-inu
       # The ui crate is a sibling checkout, consumed by path (../ui-rs).
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           repository: apitamr/slop-ui
           token: ${{ secrets.SOURCE_TOKEN }}
@@ -111,7 +111,7 @@ jobs:
   drivers:
     name: driver integration tests
     if: github.event_name == 'schedule' || inputs.drivers
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     defaults:
       run:
         working-directory: db-inu
@@ -130,13 +130,13 @@ jobs:
       KAGI_TEST_COCKROACH: host=127.0.0.1 port=26257 user=root dbname=kagi_test
       KAGI_TEST_VITESS: mysql://root@127.0.0.1:33577
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           repository: apitamr/kagi
           ref: ${{ env.REF }}
           token: ${{ secrets.SOURCE_TOKEN }}
           path: db-inu
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           repository: apitamr/slop-ui
           token: ${{ secrets.SOURCE_TOKEN }}
