@@ -93,7 +93,7 @@ curl -fsSL https://apitamr.github.io/kagi-releases/arch/setup.sh | sh
 
 It trusts Kagi's signing key, adds the `[kagi]` repository to `/etc/pacman.conf` and installs `kagi-bin`, so `pacman -Syu` (and Omarchy's Update) keep it current. On Omarchy it follows your theme, light or dark.
 
-Optional: `openssh` for SSH tunnels, `postgresql` or `mariadb-clients` for dumps and restores. To remove it: `sudo pacman -R kagi-bin`. Coming to the AUR as `kagi-bin`.
+Optional: `openssh` for SSH tunnels, `postgresql` or `mariadb-clients` for dumps and restores. To remove it: `sudo pacman -R kagi-bin`.
 
 </details>
 

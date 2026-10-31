@@ -9,8 +9,6 @@
 #
 # SOURCE_TOKEN: a fine-grained token with Contents: read on apitamr/kagi
 # and apitamr/slop-ui (the ui crate, checked out next to it by path).
-# AUR_SSH_KEY: the private SSH key of the AUR account that keeps kagi-bin;
-# without it a release is not pushed to the AUR.
 # SNAPCRAFT_STORE_CREDENTIALS: `snapcraft export-login` of the Snap Store
 # account that owns the kagi snap; without it the snap is attached to the
 # release but not uploaded to the Store.
@@ -278,37 +276,6 @@ jobs:
           git commit -am "docs: download links for $version"
           git pull --rebase
           git push
-      # The release's PKGBUILD (its checksum filled in) as kagi-bin on the
-      # AUR, with the .SRCINFO the AUR reads. The host key is pinned
-      # (SHA256:RFzBCUItH9LZS0cKB5UE6ceAYhBD5C8GeOBip8Z11+4, as the AUR
-      # publishes it).
-      - name: AUR
-        # The release is out by now: an AUR hiccup only warns.
-        continue-on-error: true
-        env:
-          AUR_SSH_KEY: ${{ secrets.AUR_SSH_KEY }}
-        run: |
-          if [ -z "$AUR_SSH_KEY" ]; then
-            echo "::warning::No AUR_SSH_KEY secret: kagi-bin not updated on the AUR"
-            exit 0
-          fi
-          pkgbuild=$(find dist -name PKGBUILD | head -n 1)
-          mkdir -p ~/.ssh
-          printf '%s\n' "$AUR_SSH_KEY" > ~/.ssh/aur && chmod 600 ~/.ssh/aur
-          echo 'aur.archlinux.org ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEuBKrPzbawxA/k2g6NcyV5jmqwJ2s+zpgZGZ7tpLIcN' >> ~/.ssh/known_hosts
-          export GIT_SSH_COMMAND="ssh -i $HOME/.ssh/aur -o IdentitiesOnly=yes"
-          git clone ssh://aur@aur.archlinux.org/kagi-bin.git aur
-          cp "$pkgbuild" aur/PKGBUILD
-          docker run --rm -v "$PWD/aur:/pkg" archlinux:latest sh -c '
-            useradd -m builder && chown -R builder /pkg
-            su builder -c "cd /pkg && makepkg --printsrcinfo > .SRCINFO"'
-          sudo chown -R "$(id -u):$(id -g)" aur
-          cd aur
-          git config user.name apitamr
-          git config user.email apitamr@users.noreply.github.com
-          git add PKGBUILD .SRCINFO
-          git commit -m "Update to ${TAG#v}"
-          git push origin HEAD:master
 
   # The release's snap on the Snap Store's stable channel, so Ubuntu's App
   # Center lists and updates it.
