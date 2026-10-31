@@ -203,7 +203,11 @@ jobs:
       - run: >-
           cargo test -p kagi-drivers postgres -- --ignored
           --skip tls_modes_encrypt_and_check_the_certificate --skip a_socket_connects
-      - run: cargo test -p kagi-drivers mysql -- --ignored --skip a_socket_in_the_url
+      # SingleStore's image wants a license key, so its tests (in the MySQL
+      # driver, KAGI_TEST_SINGLESTORE) run by hand only.
+      - run: >-
+          cargo test -p kagi-drivers mysql -- --ignored
+          --skip a_socket_in_the_url --skip singlestore_tests
       - run: cargo test -p kagi-drivers mongo -- --ignored --test-threads=1
       - run: cargo test -p kagi-drivers redis -- --ignored
       - run: cargo test -p kagi-drivers clickhouse -- --ignored
