@@ -26,13 +26,13 @@ PostgreSQL, MySQL and MariaDB, SQLite, DuckDB, SQL Server, ClickHouse, Cockroach
 
 | System | Get it | Updates |
 | --- | --- | --- |
-| **macOS** (Apple silicon) | [![Download the .dmg](https://img.shields.io/badge/download-.dmg-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.7.0/kagi-0.7.0.dmg) | Download the new one from here |
-| **Windows** (x64) | [![Download the .msi](https://img.shields.io/badge/download-.msi-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.7.0/kagi-0.7.0-x64.msi) | Kagi installs them |
+| **macOS** (Apple silicon) | [![Download the .dmg](https://img.shields.io/badge/download-.dmg-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.8.0/kagi-0.8.0.dmg) | Download the new one from here |
+| **Windows** (x64) | [![Download the .msi](https://img.shields.io/badge/download-.msi-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.8.0/kagi-0.8.0-x64.msi) | Kagi installs them |
 | **Ubuntu** | `sudo snap install kagi`, or **App Center** | Automatic |
-| **Debian, Ubuntu** (.deb) | [![Download the .deb](https://img.shields.io/badge/download-.deb-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.7.0/kagi_0.7.0_amd64.deb) | Software Updater, or Kagi |
+| **Debian, Ubuntu** (.deb) | [![Download the .deb](https://img.shields.io/badge/download-.deb-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.8.0/kagi_0.8.0_amd64.deb) | Software Updater, or Kagi |
 | **Arch, Omarchy** | `curl -fsSL https://apitamr.github.io/kagi-releases/arch/setup.sh \| sh` | `pacman -Syu`, or Kagi |
 | **Any Linux** (Flatpak) | `flatpak install --user https://apitamr.github.io/kagi-releases/kagi.flatpakref` | `flatpak update`, or Kagi |
-| **Any Linux** (AppImage) | [![Download the AppImage](https://img.shields.io/badge/download-AppImage-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.7.0/kagi-0.7.0-x86_64.AppImage) | Kagi installs them |
+| **Any Linux** (AppImage) | [![Download the AppImage](https://img.shields.io/badge/download-AppImage-e8590c)](https://github.com/apitamr/kagi-releases/releases/download/v0.8.0/kagi-0.8.0-x86_64.AppImage) | Kagi installs them |
 
 The Linux downloads above are for Intel and AMD (x86-64). Every Linux package except the Arch one also comes for 64-bit ARM (`arm64`, `aarch64`) on the [release page](https://github.com/apitamr/kagi-releases/releases/latest); the snap, APT and Flatpak repositories pick the right one themselves.
 
