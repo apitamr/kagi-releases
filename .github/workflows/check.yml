@@ -130,6 +130,7 @@ jobs:
       KAGI_TEST_COCKROACH: host=127.0.0.1 port=26257 user=root dbname=kagi_test
       KAGI_TEST_VITESS: mysql://root@127.0.0.1:33577
       KAGI_TEST_CRATE: postgres://crate@127.0.0.1:55440/doc
+      KAGI_TEST_TRINO: trino://trino@127.0.0.1:58088/memory
     steps:
       - uses: actions/checkout@v7
         with:
@@ -160,6 +161,7 @@ jobs:
           docker run -d --name clickhouse -p 18123:8123 -e CLICKHOUSE_USER=app -e CLICKHOUSE_PASSWORD=secret clickhouse/clickhouse-server:25.8
           docker run -d --name kagi-crdb -p 26257:26257 cockroachdb/cockroach:v25.2.4 start-single-node --insecure
           docker run -d --name kagi-crate -p 55440:5432 crate:5.10 -Cdiscovery.type=single-node
+          docker run -d --name kagi-trino -p 58088:8080 trinodb/trino:476
           docker run -d --name kagi-vitess -p 33577:33577 vitess/vttestserver:mysql80 /vt/bin/vttestserver \
             --port=33574 --keyspaces=shop --num_shards=1 --mysql_bind_host=0.0.0.0
       - name: Linux packages
@@ -204,6 +206,12 @@ jobs:
             docker exec kagi-crate crash -c 'SELECT 1' >/dev/null 2>&1 && break
             sleep 2
           done
+          # Trino's memory catalog holds the sandbox's shop once it answers.
+          for _ in $(seq 90); do
+            curl -fsS http://127.0.0.1:58088/v1/info 2>/dev/null | grep -q '"starting":false' && break
+            sleep 2
+          done
+          docker exec -i kagi-trino trino < scripts/sandbox/seed/trino.sql
       # The TLS test needs a PostgreSQL server with its own certificate; the
       # socket tests run in their own step.
       - run: >-
@@ -219,6 +227,7 @@ jobs:
       - run: cargo test -p kagi-drivers mongo -- --ignored --test-threads=1
       - run: cargo test -p kagi-drivers redis -- --ignored
       - run: cargo test -p kagi-drivers clickhouse -- --ignored
+      - run: cargo test -p kagi-drivers trino -- --ignored
       - run: cargo test -p kagi-drivers sqlserver -- --ignored --test-threads=1
       - name: Valkey, through the Redis driver
         env:
