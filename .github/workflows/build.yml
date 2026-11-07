@@ -237,6 +237,11 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          # A run that only finishes a release, its repositories or its snap
+          # after one of them failed, leaves what's published as it is.
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            exit 0
+          fi
           # The version's own section of the changelog, from its "## <version>"
           # to the next "## ", blank lines around it dropped.
           awk -v heading="## ${TAG#v}" '$0 == heading {found=1; next} found && /^## / {exit} found' \
@@ -282,7 +287,8 @@ jobs:
   snap:
     name: snap
     needs: release
-    if: inputs.publish
+    # Not held back by the repositories failing: only the release matters here.
+    if: always() && inputs.publish && needs.release.result == 'success'
     runs-on: ubuntu-24.04
     steps:
       # The build's own snaps, not the release's: its download counts stay
