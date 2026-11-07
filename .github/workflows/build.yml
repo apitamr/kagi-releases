@@ -306,8 +306,18 @@ jobs:
             echo "::warning::No SNAPCRAFT_STORE_CREDENTIALS secret: the snap isn't on the Snap Store"
             exit 0
           fi
+          # A run finishing a release finds its snaps there already, and the
+          # store refuses the same file twice.
+          released=$(curl -fsS -H 'Snap-Device-Series: 16' \
+            'https://api.snapcraft.io/v2/snaps/info/kagi?fields=version,channel-map' |
+            jq -r '.["channel-map"][] | select(.channel.risk == "stable") | "\(.channel.architecture) \(.version)"') || released=
           sudo snap install snapcraft --classic
           for snap in $(find built -type f -name 'kagi_*.snap'); do
+            arch=$(basename "$snap" .snap)
+            if grep -qx "${arch##*_} ${TAG#v}" <<< "$released"; then
+              echo "${arch##*_} is on the store already"
+              continue
+            fi
             snapcraft upload --release=stable "$snap"
           done
 
@@ -397,3 +407,6 @@ jobs:
       - uses: actions/deploy-pages@v5
         if: steps.key.outputs.present == 'true'
         id: deploy
+        with:
+          # A slow sync on GitHub's side outlasts the default ten minutes.
+          timeout: 1800000
